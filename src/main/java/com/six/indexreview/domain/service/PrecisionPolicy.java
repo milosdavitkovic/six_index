@@ -3,7 +3,12 @@ package com.six.indexreview.domain.service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-/** Central financial precision policy used by every calculation rule. */
+/**
+ * Central financial precision policy used by every calculation rule.
+ *
+ * A single policy keeps rounding deterministic and makes methodology changes
+ * easier to review, test, and version.
+ */
 public record PrecisionPolicy(int internalScale, int outputScale, RoundingMode roundingMode) {
 
     public PrecisionPolicy {
@@ -19,14 +24,20 @@ public record PrecisionPolicy(int internalScale, int outputScale, RoundingMode r
     }
 
     public BigDecimal internal(BigDecimal value) {
+        // Internal precision is kept higher than the published output scale so
+        // intermediate redistribution steps do not accumulate rounding drift.
         return value.setScale(internalScale, roundingMode);
     }
 
     public BigDecimal output(BigDecimal value) {
+        // Output values are rounded only once, at the point they become part of
+        // the auditable review result.
         return value.setScale(outputScale, roundingMode);
     }
 
     public BigDecimal divide(BigDecimal numerator, BigDecimal denominator) {
+        // Deterministic division protects the review from JVM/default-scale
+        // differences and keeps repeated runs reproducible.
         return numerator.divide(denominator, internalScale, roundingMode);
     }
 }

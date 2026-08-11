@@ -17,6 +17,12 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Core SpiUniverseEligibilityRule component for the SIX index review workflow.
+ *
+ * Kept intentionally concise so the business meaning remains visible
+ * without obscuring the implementation.
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor

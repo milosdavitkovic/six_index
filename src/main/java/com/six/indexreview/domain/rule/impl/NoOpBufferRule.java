@@ -5,6 +5,13 @@ import com.six.indexreview.domain.rule.BufferRule;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+/**
+ * Disables buffer retention for methodologies that require pure top-N
+ * selection.
+ *
+ * This rule exists so the engine can switch buffer behavior by configuration
+ * instead of branching in the orchestration layer.
+ */
 @Slf4j
 @Component("noOpBufferRule")
 public class NoOpBufferRule implements BufferRule {
@@ -20,6 +27,8 @@ public class NoOpBufferRule implements BufferRule {
 
     @Override
     public IndexReviewContext apply(IndexReviewContext context) {
+        // Explicitly record the absence of buffer retention so the audit trail
+        // can explain why a current constituent was not kept.
         log.warn("Buffer rule configured as NONE. Pure top-N selection applied.");
         context.audit(code(), "Buffer rule configured as NONE. Pure top-N selection applied.",
                 context.definition().selectionRule(), "NO_BUFFER");

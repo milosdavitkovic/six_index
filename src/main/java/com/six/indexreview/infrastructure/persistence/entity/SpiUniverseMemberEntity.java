@@ -5,6 +5,12 @@ import lombok.Getter;
 
 import java.time.LocalDate;
 
+/**
+ * Core SpiUniverseMemberEntity component for the SIX index review workflow.
+ *
+ * Kept intentionally concise so the business meaning remains visible
+ * without obscuring the implementation.
+ */
 @Getter
 @Entity
 @Table(name = "spi_universe_member", uniqueConstraints = @UniqueConstraint(name = "uk_spi_universe_security_date", columnNames = {"security_id", "universe_date"}))

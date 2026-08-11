@@ -22,8 +22,8 @@ This folder contains Postman assets for the `six_index` API:
    ```bash
    .\mvnw.cmd spring-boot:run
    ```
-2. Make sure the Postman environment variable `baseUrl` points to the running service.
-   - Default value: `http://localhost:8080`
+2. Make sure the Postman environment variables `protocol`, `host`, and `port` point to the running service.
+   - Default values: `http`, `localhost`, `8080`
 3. Run the requests in this order:
    - `Health` → `Get API health`
    - `Import` → `Import all datasets`

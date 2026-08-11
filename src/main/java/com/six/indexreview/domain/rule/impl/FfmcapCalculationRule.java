@@ -8,7 +8,12 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 
-/** Standalone FFMCAP calculation rule; the SMI pipeline combines it with ranking for one pass. */
+/**
+ * Calculates FFMCAP for each eligible security.
+ *
+ * The rule exists as a standalone step so future methodologies can reuse the
+ * same financial calculation without coupling it to ranking or selection.
+ */
 @Slf4j
 public class FfmcapCalculationRule implements ReviewRule {
     private final FreeFloatMarketCapCalculator calculator;
@@ -32,6 +37,8 @@ public class FfmcapCalculationRule implements ReviewRule {
         log.info("Starting rule {} eligible={}", code(), context.eligibleSecurities().size());
         var calculated = new ArrayList<EligibleSecurity>();
         for (EligibleSecurity value : context.eligibleSecurities()) {
+            // Store the intermediate FFMCAP explicitly so the audit trail can
+            // explain every downstream ranking and selection decision.
             var ffmcap = calculator.calculate(value.price(), value.shares(), value.freeFloat());
             calculated.add(new EligibleSecurity(value.securityId(), value.price(), value.shares(), value.freeFloat(),
                     ffmcap, value.currentConstituent()));

@@ -5,6 +5,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
+/**
+ * Strategy contract for IndexCompositionRepository in the SIX index review workflow.
+ *
+ * Kept intentionally concise so the business meaning remains visible
+ * without obscuring the implementation.
+ */
 public interface IndexCompositionRepository extends JpaRepository<IndexCompositionEntity, Long> {
     List<IndexCompositionEntity> findAllByIndexCodeAndReviewPeriod(String indexCode, String reviewPeriod);
 

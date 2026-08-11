@@ -1,5 +1,11 @@
 # API examples
 
+These examples assume the local service is available at the default Postman-style split endpoint values:
+
+- `protocol`: `http`
+- `host`: `localhost`
+- `port`: `8080`
+
 ## Health
 
 ```http

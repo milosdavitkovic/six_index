@@ -15,6 +15,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Core SecurityDataCsvReader component for the SIX index review workflow.
+ *
+ * Kept intentionally concise so the business meaning remains visible
+ * without obscuring the implementation.
+ */
 @Component
 public class SecurityDataCsvReader {
     public List<SecurityDataRow> read(InputStream inputStream, String fileName) {

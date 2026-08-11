@@ -40,6 +40,10 @@ rawWeight = constituentFFMCAP / sum(selectedFFMCAP)
 
 The denominator must be positive and every selected FFMCAP must be positive. Raw division uses the internal scale and configured rounding mode.
 
+## Precision rules
+
+All financial and weight calculations use `BigDecimal` end to end. Decimal values are parsed directly from text and are never converted through `double` or `float` intermediates. The shared `PrecisionPolicy` keeps intermediate calculations at scale 16 and final reported weights at scale 10, both using the configured rounding mode.
+
 ## 18% capping
 
 The cap rule starts with raw weights. In each iteration, every uncapped constituent above the maximum is set to the maximum. The excess is redistributed to the remaining uncapped constituents in proportion to their current weights. The process repeats because redistribution can create another breach.

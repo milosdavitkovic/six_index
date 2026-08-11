@@ -6,6 +6,12 @@ import com.six.indexreview.reporting.dto.ReviewReport;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+/**
+ * Core ReviewResultAssembler component for the SIX index review workflow.
+ *
+ * Kept intentionally concise so the business meaning remains visible
+ * without obscuring the implementation.
+ */
 @Component
 @RequiredArgsConstructor
 public class ReviewResultAssembler {

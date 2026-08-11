@@ -7,6 +7,12 @@ import org.springframework.stereotype.Component;
 import java.time.Clock;
 import java.time.Instant;
 
+/**
+ * Core AuditEventFactory component for the SIX index review workflow.
+ *
+ * Kept intentionally concise so the business meaning remains visible
+ * without obscuring the implementation.
+ */
 @Component
 public class AuditEventFactory {
     private final Clock clock;

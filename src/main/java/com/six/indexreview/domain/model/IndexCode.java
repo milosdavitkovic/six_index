@@ -3,6 +3,12 @@ package com.six.indexreview.domain.model;
 import java.io.Serializable;
 import java.util.Locale;
 
+/**
+ * Immutable data carrier for IndexCode.
+ *
+ * Kept intentionally concise so the business meaning remains visible
+ * without obscuring the implementation.
+ */
 public record IndexCode(String value) implements Serializable {
 
     public IndexCode {

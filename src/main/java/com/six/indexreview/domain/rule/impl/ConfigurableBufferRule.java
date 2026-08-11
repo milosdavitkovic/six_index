@@ -10,10 +10,11 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 /**
- * Extension-point implementation for an index methodology that retains a
- * current member when it is within a configurable rank band.  SMI currently
- * selects NONE, but the engine can activate this rule without changing its
- * orchestration or persistence layers.
+ * Applies a configurable rank buffer for current constituents.
+ *
+ * Current SMI configuration may not activate this rule, but keeping it as a
+ * strategy allows future methodologies to retain members without changing the
+ * engine or persistence model.
  */
 @Slf4j
 @Component("configurableBufferRule")
@@ -34,6 +35,8 @@ public class ConfigurableBufferRule implements BufferRule {
         int rankLimit = context.definition().bufferRetentionRank() > 0
                 ? context.definition().bufferRetentionRank()
                 : context.definition().constituentCount() + 5;
+        // Preserve the existing selection order so only the replacement member
+        // changes, which simplifies audit comparison between reviews.
         List<SelectedConstituent> selected = new ArrayList<>(context.selectedConstituents());
         Set<com.six.indexreview.domain.model.SecurityId> selectedIds = new HashSet<>(selected.stream()
                 .map(SelectedConstituent::securityId).toList());

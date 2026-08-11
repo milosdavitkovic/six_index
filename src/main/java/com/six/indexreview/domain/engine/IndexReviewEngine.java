@@ -10,8 +10,20 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * Core IndexReviewEngine component for the SIX index review workflow.
+ *
+ * Kept intentionally concise so the business meaning remains visible
+ * without obscuring the implementation.
+ */
 @Slf4j
 @Component
+/**
+ * Executes the ordered SIX index review rule pipeline.
+ *
+ * The engine stays orchestration-only so individual methodology changes can be
+ * introduced through rule replacement rather than workflow redesign.
+ */
 public class IndexReviewEngine {
     private final DefaultDataValidationRule validationRule;
     private final SpiUniverseEligibilityRule eligibilityRule;
@@ -47,6 +59,8 @@ public class IndexReviewEngine {
     }
 
     public IndexReviewContext execute(IndexReviewContext context) {
+        // The rule order is fixed to keep eligibility, ranking, selection, and
+        // weighting outcomes deterministic and auditable.
         List<ReviewRule> rules = List.of(validationRule, eligibilityRule, rankingRule, selectionRule,
                 chooseBufferRule(context), joinerLeaverRule, weightCalculationRule, weightCappingRule,
                 auditReportRule);
@@ -64,6 +78,8 @@ public class IndexReviewEngine {
     }
 
     private BufferRule chooseBufferRule(IndexReviewContext context) {
+        // Buffer behavior is isolated behind a strategy so future methodology
+        // changes can be configured without altering the pipeline.
         return switch (context.definition().bufferRule()) {
             case "NONE", "NOOP", "NO_OP", "" -> noOpBufferRule;
             case "CONFIGURABLE", "TOP_N_WITH_BUFFER" -> configurableBufferRule;

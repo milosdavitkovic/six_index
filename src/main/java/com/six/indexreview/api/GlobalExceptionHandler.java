@@ -17,6 +17,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * Core GlobalExceptionHandler component for the SIX index review workflow.
+ *
+ * Kept intentionally concise so the business meaning remains visible
+ * without obscuring the implementation.
+ */
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
@@ -61,12 +67,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse unexpected(Exception exception) {
-        return error(500, "INTERNAL_ERROR", "Unexpected server error", List.of());
+        String message = exception.getMessage();
+        log.error("Unexpected server error", exception);
+        return error(500, "INTERNAL_ERROR", message == null ? "Unexpected server error" : message, List.of());
     }
 
     private ValidationErrorResponse toResponse(ValidationError error) {
-        return new ValidationErrorResponse(error.code(), error.field(), error.message(),
-                error.securityId() == null ? null : error.securityId().value(), error.severity().name());
+        Integer securityId = error.securityId() == null ? null : error.securityId().value();
+        return new ValidationErrorResponse(error.code(), error.field(), error.message(), securityId, error.severity().name());
     }
 
     private ErrorResponse error(int status, String code, String message, List<ValidationErrorResponse> validationErrors) {

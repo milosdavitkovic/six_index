@@ -1,4 +1,4 @@
-name: Build
+name: build
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   test:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Check out repository
@@ -20,5 +20,4 @@ jobs:
           cache: maven
 
       - name: Run tests
-        shell: pwsh
-        run: .\mvnw.cmd -s .mvn/settings-central.xml test
+        run: ./mvnw test

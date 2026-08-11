@@ -9,6 +9,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+/**
+ * Calculates raw constituent weights from selected FFMCAP values.
+ *
+ * The rule remains methodology-specific so alternative weighting schemes can
+ * be added later without changing the capping step or review flow.
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -29,6 +35,9 @@ public class FfmcapWeightCalculationRule implements WeightCalculationRule {
     public IndexReviewContext apply(IndexReviewContext context) {
         log.info("Starting rule {} selected={}", code(), context.selectedConstituents().size());
         try {
+            // The raw weight is the uncapped share of selected FFMCAP against
+            // the total selected FFMCAP, which provides the starting point for
+            // all later capping and redistribution logic.
             context.replaceSelected(weightCalculator.calculate(context.selectedConstituents()));
         } catch (IllegalArgumentException exception) {
             throw new ReviewValidationException("Selected constituent weight input is invalid", java.util.List.of(

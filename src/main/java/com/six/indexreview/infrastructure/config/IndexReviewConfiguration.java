@@ -6,6 +6,12 @@ import org.springframework.context.annotation.Configuration;
 
 import java.time.Clock;
 
+/**
+ * Core IndexReviewConfiguration component for the SIX index review workflow.
+ *
+ * Kept intentionally concise so the business meaning remains visible
+ * without obscuring the implementation.
+ */
 @Configuration
 public class IndexReviewConfiguration {
 

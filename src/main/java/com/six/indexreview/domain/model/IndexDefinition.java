@@ -2,7 +2,14 @@ package com.six.indexreview.domain.model;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
+/**
+ * Immutable data carrier for IndexDefinition.
+ *
+ * Kept intentionally concise so the business meaning remains visible
+ * without obscuring the implementation.
+ */
 public record IndexDefinition(
         IndexCode indexCode,
         String name,
@@ -18,6 +25,13 @@ public record IndexDefinition(
         int bufferRetentionRank) {
 
     public IndexDefinition {
+        Objects.requireNonNull(indexCode, "indexCode must not be null");
+        Objects.requireNonNull(name, "name must not be null");
+        Objects.requireNonNull(rankingRule, "rankingRule must not be null");
+        Objects.requireNonNull(selectionRule, "selectionRule must not be null");
+        Objects.requireNonNull(bufferRule, "bufferRule must not be null");
+        Objects.requireNonNull(reviewPeriod, "reviewPeriod must not be null");
+        Objects.requireNonNull(reviewDates, "reviewDates must not be null");
         if (constituentCount <= 0) {
             throw new IllegalArgumentException("Constituent count must be positive");
         }

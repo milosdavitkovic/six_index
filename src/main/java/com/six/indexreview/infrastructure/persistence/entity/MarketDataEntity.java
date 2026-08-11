@@ -6,6 +6,12 @@ import lombok.Getter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+/**
+ * Core MarketDataEntity component for the SIX index review workflow.
+ *
+ * Kept intentionally concise so the business meaning remains visible
+ * without obscuring the implementation.
+ */
 @Getter
 @Entity
 @Table(name = "market_data", uniqueConstraints = @UniqueConstraint(name = "uk_market_data_security_date", columnNames = {"security_id", "data_date"}))

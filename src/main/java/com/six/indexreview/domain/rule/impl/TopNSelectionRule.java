@@ -7,6 +7,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+/**
+ * Applies the configured top-N constituent selection rule.
+ *
+ * Selection is intentionally separate from ranking so alternative index
+ * families can reuse the same ranking logic with different thresholds.
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -30,6 +36,8 @@ public class TopNSelectionRule implements SelectionRule {
                 && !"TOP_N_WITH_BUFFER".equalsIgnoreCase(context.definition().selectionRule())) {
             throw new IllegalArgumentException("Unsupported selection rule: " + context.definition().selectionRule());
         }
+        // The ranked list is already deterministic; truncation preserves that
+        // order and therefore the final selected set.
         context.replaceSelected(selector.select(context.rankedSecurities(), context.definition().constituentCount()));
         context.selectedConstituents().forEach(value -> context.audit(code(), value.securityId(),
                 "Security selected by top-N rule.", "rank=" + value.rank(), "SELECTED"));

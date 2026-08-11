@@ -10,6 +10,12 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+/**
+ * Core ReviewResultMapper component for the SIX index review workflow.
+ *
+ * Kept intentionally concise so the business meaning remains visible
+ * without obscuring the implementation.
+ */
 @Component
 public class ReviewResultMapper {
 
@@ -33,8 +39,9 @@ public class ReviewResultMapper {
         }
         int sequence = 1;
         for (AuditEvent event : context.auditEvents()) {
+            Integer securityId = event.securityId() == null ? null : event.securityId().value();
             entity.addAuditEvent(new AuditEventEntity(sequence++, event.timestamp(), event.ruleCode(),
-                    event.securityId() == null ? null : event.securityId().value(), event.message(),
+                    securityId, event.message(),
                     event.inputValue(), event.outputValue()));
         }
         return entity;
@@ -72,7 +79,7 @@ public class ReviewResultMapper {
     }
 
     private boolean findCurrent(ReviewResultEntity entity, Integer securityId) {
-        return entity.getDecisions().stream().anyMatch(value -> value.getSecurityId().equals(securityId)
-                && (value.getDecisionType().equals("UNCHANGED") || value.getDecisionType().equals("LEAVER")));
+        return entity.getDecisions().stream().anyMatch(value -> Objects.equals(value.getSecurityId(), securityId)
+                && ("UNCHANGED".equals(value.getDecisionType()) || "LEAVER".equals(value.getDecisionType())));
     }
 }

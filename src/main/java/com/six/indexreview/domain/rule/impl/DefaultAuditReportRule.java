@@ -10,6 +10,12 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.List;
 
+/**
+ * Core DefaultAuditReportRule component for the SIX index review workflow.
+ *
+ * Kept intentionally concise so the business meaning remains visible
+ * without obscuring the implementation.
+ */
 @Slf4j
 @Component
 public class DefaultAuditReportRule implements AuditReportRule {

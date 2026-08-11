@@ -6,6 +6,12 @@ import lombok.Getter;
 
 import java.math.BigDecimal;
 
+/**
+ * Core ReviewResultConstituentEntity component for the SIX index review workflow.
+ *
+ * Kept intentionally concise so the business meaning remains visible
+ * without obscuring the implementation.
+ */
 @Getter
 @Builder
 @Entity

@@ -16,6 +16,12 @@ import java.math.MathContext;
 import java.util.*;
 import java.util.function.Consumer;
 
+/**
+ * Caps constituent weights and redistributes excess proportionally.
+ *
+ * BigDecimal and a high internal scale are used to keep redistribution
+ * deterministic and to ensure the published output sums to exactly 1.0.
+ */
 @Slf4j
 @Component
 public class IterativeProportionalWeightCappingRule implements WeightCappingRule, WeightCapper {
@@ -48,8 +54,10 @@ public class IterativeProportionalWeightCappingRule implements WeightCappingRule
         List<String> redistributionMessages = new ArrayList<>();
         List<SelectedConstituent> capped;
         try {
+            // Store redistribution steps separately so the audit trail can show
+            // how excess weight moved between constituents.
             capped = capInternal(context.selectedConstituents(), context.definition().maxWeight(),
-                    message -> redistributionMessages.add(message));
+                    redistributionMessages::add);
         } catch (IllegalArgumentException exception) {
             throw new ReviewValidationException("Weight capping validation failed", List.of(
                     ValidationError.error("WEIGHT_CAPPING_FAILED", "finalWeights", exception.getMessage())));
@@ -82,6 +90,9 @@ public class IterativeProportionalWeightCappingRule implements WeightCappingRule
                                                   BigDecimal maxWeight,
                                                   Consumer<String> redistributionAudit) {
         validateInput(constituents, maxWeight);
+        // Use a wider working precision than the published output scale so
+        // repeated redistribution does not create non-deterministic rounding
+        // artifacts.
         MathContext mathContext = new MathContext(Math.max(34, precisionPolicy.internalScale() + 12),
                 precisionPolicy.roundingMode());
         Map<com.six.indexreview.domain.model.SecurityId, BigDecimal> working = initialWeights(constituents);
@@ -131,6 +142,8 @@ public class IterativeProportionalWeightCappingRule implements WeightCappingRule
             BigDecimal excess = capAndMeasureExcess(overCap, maxWeight, working, cappedIds, mathContext);
             List<SelectedConstituent> uncapped = constituents.stream()
                     .filter(value -> !cappedIds.contains(value.securityId())).toList();
+            // Redistribute excess proportionally to the remaining uncapped
+            // weights so the relative order of the survivors remains stable.
             redistributeToUncapped(uncapped, excess, working, mathContext);
             String message = "Redistribution iteration " + iteration + " capped="
                     + overCap.stream().map(value -> value.securityId().toString()).sorted().toList()
@@ -162,8 +175,8 @@ public class IterativeProportionalWeightCappingRule implements WeightCappingRule
                 .reduce(BigDecimal.ZERO, (left, right) -> left.add(right, mathContext));
         if (total.compareTo(BigDecimal.ZERO) <= 0) throw new IllegalArgumentException("Cannot redistribute excess to zero-weight constituents");
         uncapped.forEach(value -> {
-            BigDecimal current = working.get(value.securityId());
-            working.put(value.securityId(), current.add(excess.multiply(current, mathContext).divide(total, mathContext), mathContext));
+            working.compute(value.securityId(), (key, current) -> current.add(
+                    excess.multiply(current, mathContext).divide(total, mathContext), mathContext));
         });
     }
 

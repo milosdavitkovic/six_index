@@ -20,7 +20,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.Objects;
 
+/**
+ * Imports the reference CSV snapshots used by the review engine.
+ *
+ * Validation happens before review execution so invalid market data cannot
+ * influence constituent selection or audit output.
+ */
 @Slf4j
 @Service
 public class CsvImportService {
@@ -61,9 +68,12 @@ public class CsvImportService {
         Map<String, SpiUniverseRow> unique = new LinkedHashMap<>();
         int duplicates = 0;
         for (SpiUniverseRow row : rows) {
+            // Duplicate handling is deterministic: identical rows are tolerated,
+            // conflicting rows fail fast so the import stays trustworthy.
             String key = row.securityId() + "|" + row.date();
             if (unique.containsKey(key)) {
-                if (!unique.get(key).equals(row)) {
+                SpiUniverseRow existing = unique.get(key);
+                if (!Objects.equals(existing, row)) {
                     throw new DataImportException("Conflicting duplicate SPI universe row for " + key);
                 }
                 duplicates++;
@@ -90,9 +100,12 @@ public class CsvImportService {
         Map<String, SecurityDataRow> unique = new LinkedHashMap<>();
         int duplicates = 0;
         for (SecurityDataRow row : rows) {
+            // Market data drives FFMCAP and selection, so contradictory input
+            // must be rejected before it reaches the review engine.
             String key = row.securityId() + "|" + row.date();
             if (unique.containsKey(key)) {
-                if (!sameMarketData(unique.get(key), row)) {
+                SecurityDataRow existing = unique.get(key);
+                if (!sameMarketData(existing, row)) {
                     throw new DataImportException("Conflicting duplicate market data row for " + key);
                 }
                 duplicates++;
@@ -119,6 +132,8 @@ public class CsvImportService {
         List<CompositionRow> rows = read(file, compositionCsvReader::read);
         Set<SecurityId> unique = new LinkedHashSet<>();
         for (CompositionRow row : rows) {
+            // Keep composition deduplication stable so the current member set
+            // can be reconstructed exactly during review replay.
             if (!unique.add(row.securityId())) {
                 log.warn("Deduplicated duplicate composition securityId={}", row.securityId());
             }
@@ -150,9 +165,12 @@ public class CsvImportService {
     }
 
     private void saveSecurities(List<SecurityId> ids) {
-        Set<Integer> existing = new LinkedHashSet<>(securityRepository.findAllById(ids.stream().map(SecurityId::value).toList())
+        // Ensure referenced securities exist even when only the snapshot files
+        // are imported; this preserves referential integrity for later review runs.
+        List<Integer> requestedIds = ids.stream().map(SecurityId::value).distinct().toList();
+        Set<Integer> existing = new LinkedHashSet<>(securityRepository.findAllById(requestedIds)
                 .stream().map(SecurityEntity::getId).toList());
-        List<SecurityEntity> missing = ids.stream().map(SecurityId::value).distinct()
+        List<SecurityEntity> missing = requestedIds.stream()
                 .filter(id -> !existing.contains(id)).map(SecurityEntity::new).toList();
         if (!missing.isEmpty()) {
             securityRepository.saveAll(missing);
@@ -160,6 +178,8 @@ public class CsvImportService {
     }
 
     private boolean sameMarketData(SecurityDataRow left, SecurityDataRow right) {
+        // compareTo() ignores scale differences, which is appropriate for CSV
+        // import de-duplication where 10.0 and 10.00 should be equivalent.
         return equalDecimal(left.price(), right.price()) && equalDecimal(left.shares(), right.shares())
                 && equalDecimal(left.freeFloat(), right.freeFloat());
     }
@@ -173,7 +193,8 @@ public class CsvImportService {
             throw new DataImportException("Uploaded file must not be empty");
         }
         try {
-            return function.read(file.getInputStream(), file.getOriginalFilename() == null ? "upload" : file.getOriginalFilename());
+            String originalFilename = file.getOriginalFilename();
+            return function.read(file.getInputStream(), originalFilename == null ? "upload" : originalFilename);
         } catch (DataImportException exception) {
             throw exception;
         } catch (Exception exception) {

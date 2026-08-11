@@ -3,6 +3,12 @@ package com.six.indexreview.infrastructure.persistence.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 
+/**
+ * Core ReviewDecisionEntity component for the SIX index review workflow.
+ *
+ * Kept intentionally concise so the business meaning remains visible
+ * without obscuring the implementation.
+ */
 @Getter
 @Entity
 @Table(name = "review_decision")

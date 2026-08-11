@@ -316,3 +316,4 @@ dist
 data/**
 target/**
 /target
+/htmlReport

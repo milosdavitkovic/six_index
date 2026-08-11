@@ -4,6 +4,12 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Immutable data carrier for ReviewReport.
+ *
+ * Kept intentionally concise so the business meaning remains visible
+ * without obscuring the implementation.
+ */
 public record ReviewReport(
         Long reviewResultId,
         String indexCode,

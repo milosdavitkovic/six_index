@@ -9,6 +9,12 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * Produces a deterministic ranking for eligible securities.
+ *
+ * The comparator chain isolates methodology-specific tie-breakers so future
+ * ranking variants can be introduced without changing the calling workflow.
+ */
 @Slf4j
 @Component
 public class DeterministicRanker {

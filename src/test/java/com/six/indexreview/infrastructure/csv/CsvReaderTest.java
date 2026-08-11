@@ -11,11 +11,21 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class CsvReaderTest {
     @Test
     void readsSemicolonDataWithUtf8BomAndEmptyPrice() {
-        String csv = "\uFEFFid;date;price;free_float;shares\n1;2026-09-21;;0.5;100\n";
+        String csv = "\uFEFFid;date;price;free_float;shares\n1;2026-09-21;;0.1;100\n";
         var rows = new SecurityDataCsvReader().read(stream(csv), "security.csv");
         assertThat(rows).singleElement().satisfies(row -> {
             assertThat(row.price()).isNull();
-            assertThat(row.freeFloat()).isEqualByComparingTo("0.5");
+            assertThat(row.freeFloat()).isEqualByComparingTo("0.1");
+        });
+    }
+
+    @Test
+    void parsesDecimalsExactlyWithoutBinaryFloatingPointArtifacts() {
+        String csv = "id;date;price;free_float;shares\n1;2026-09-21;12.34;0.1;100\n";
+        var rows = new SecurityDataCsvReader().read(stream(csv), "security.csv");
+        assertThat(rows).singleElement().satisfies(row -> {
+            assertThat(row.price()).isEqualByComparingTo("12.34");
+            assertThat(row.freeFloat()).isEqualByComparingTo("0.1");
         });
     }
 

@@ -8,6 +8,12 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Core WeightCalculator component for the SIX index review workflow.
+ *
+ * Kept intentionally concise so the business meaning remains visible
+ * without obscuring the implementation.
+ */
 @Component
 public class WeightCalculator {
     private final PrecisionPolicy precisionPolicy;

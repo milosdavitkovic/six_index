@@ -20,7 +20,16 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/health"
+              "raw": "{{protocol}}://{{host}}:{{port}}/api/health",
+              "protocol": "{{protocol}}",
+              "host": [
+                "{{host}}"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "api",
+                "health"
+              ]
             },
             "description": "Health probe for the running application."
           },
@@ -64,22 +73,32 @@
                 {
                   "key": "spiUniverse",
                   "type": "file",
-                  "src": "C:\\Users\\e559706\\Documents\\work\\sbb\\bitbacket-repos\\six_index\\data\\spi_universe.csv"
+                  "src": "data/spi_universe.csv"
                 },
                 {
                   "key": "securityData",
                   "type": "file",
-                  "src": "C:\\Users\\e559706\\Documents\\work\\sbb\\bitbacket-repos\\six_index\\data\\sec_data.csv"
+                  "src": "data/sec_data.csv"
                 },
                 {
                   "key": "composition",
                   "type": "file",
-                  "src": "C:\\Users\\e559706\\Documents\\work\\sbb\\bitbacket-repos\\six_index\\data\\composition.csv"
+                  "src": "data/composition.csv"
                 }
               ]
             },
             "url": {
-              "raw": "{{baseUrl}}/api/import/all"
+              "raw": "{{protocol}}://{{host}}:{{port}}/api/import/all",
+              "protocol": "{{protocol}}",
+              "host": [
+                "{{host}}"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "api",
+                "import",
+                "all"
+              ]
             },
             "description": "Imports the three sample CSVs used by the integration tests."
           },
@@ -129,12 +148,22 @@
                 {
                   "key": "file",
                   "type": "file",
-                  "src": "C:\\Users\\e559706\\Documents\\work\\sbb\\bitbacket-repos\\six_index\\data\\spi_universe.csv"
+                  "src": "data/spi_universe.csv"
                 }
               ]
             },
             "url": {
-              "raw": "{{baseUrl}}/api/import/spi-universe"
+              "raw": "{{protocol}}://{{host}}:{{port}}/api/import/spi-universe",
+              "protocol": "{{protocol}}",
+              "host": [
+                "{{host}}"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "api",
+                "import",
+                "spi-universe"
+              ]
             },
             "description": "Single-file import using `data/spi_universe.csv`."
           },
@@ -176,12 +205,22 @@
                 {
                   "key": "file",
                   "type": "file",
-                  "src": "C:\\Users\\e559706\\Documents\\work\\sbb\\bitbacket-repos\\six_index\\data\\sec_data.csv"
+                  "src": "data/sec_data.csv"
                 }
               ]
             },
             "url": {
-              "raw": "{{baseUrl}}/api/import/security-data"
+              "raw": "{{protocol}}://{{host}}:{{port}}/api/import/security-data",
+              "protocol": "{{protocol}}",
+              "host": [
+                "{{host}}"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "api",
+                "import",
+                "security-data"
+              ]
             },
             "description": "Single-file import using `data/sec_data.csv`."
           },
@@ -223,12 +262,22 @@
                 {
                   "key": "file",
                   "type": "file",
-                  "src": "C:\\Users\\e559706\\Documents\\work\\sbb\\bitbacket-repos\\six_index\\data\\composition.csv"
+                  "src": "data/composition.csv"
                 }
               ]
             },
             "url": {
-              "raw": "{{baseUrl}}/api/import/composition"
+              "raw": "{{protocol}}://{{host}}:{{port}}/api/import/composition",
+              "protocol": "{{protocol}}",
+              "host": [
+                "{{host}}"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "api",
+                "import",
+                "composition"
+              ]
             },
             "description": "Single-file import using `data/composition.csv`."
           },
@@ -270,7 +319,19 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/index-reviews/{{indexCode}}/{{reviewPeriod}}/run"
+              "raw": "{{protocol}}://{{host}}:{{port}}/api/index-reviews/{{indexCode}}/{{reviewPeriod}}/run",
+              "protocol": "{{protocol}}",
+              "host": [
+                "{{host}}"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "api",
+                "index-reviews",
+                "{{indexCode}}",
+                "{{reviewPeriod}}",
+                "run"
+              ]
             },
             "description": "Runs the deterministic review flow for the integration-test scenario (`SMI` / `Q3-2026`)."
           },
@@ -314,7 +375,19 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/index-reviews/{{invalidIndexCode}}/{{reviewPeriod}}/run"
+              "raw": "{{protocol}}://{{host}}:{{port}}/api/index-reviews/{{invalidIndexCode}}/{{reviewPeriod}}/run",
+              "protocol": "{{protocol}}",
+              "host": [
+                "{{host}}"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "api",
+                "index-reviews",
+                "{{invalidIndexCode}}",
+                "{{reviewPeriod}}",
+                "run"
+              ]
             },
             "description": "Matches the integration test that expects a 400 `INVALID_REQUEST` response for `SMIM` / `Q3-2026`."
           },
@@ -349,7 +422,19 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/index-reviews/{{indexCode}}/{{reviewPeriod}}/latest"
+              "raw": "{{protocol}}://{{host}}:{{port}}/api/index-reviews/{{indexCode}}/{{reviewPeriod}}/latest",
+              "protocol": "{{protocol}}",
+              "host": [
+                "{{host}}"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "api",
+                "index-reviews",
+                "{{indexCode}}",
+                "{{reviewPeriod}}",
+                "latest"
+              ]
             },
             "description": "Returns the latest review for the configured index and review period."
           },
@@ -383,7 +468,18 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/index-reviews/results/{{reviewResultId}}"
+              "raw": "{{protocol}}://{{host}}:{{port}}/api/index-reviews/results/{{reviewResultId}}",
+              "protocol": "{{protocol}}",
+              "host": [
+                "{{host}}"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "api",
+                "index-reviews",
+                "results",
+                "{{reviewResultId}}"
+              ]
             },
             "description": "Fetches the review result stored by the `Run review` request."
           },
@@ -418,7 +514,21 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/index-reviews/results/{{reviewResultId}}/securities/{{securityId}}/audit"
+              "raw": "{{protocol}}://{{host}}:{{port}}/api/index-reviews/results/{{reviewResultId}}/securities/{{securityId}}/audit",
+              "protocol": "{{protocol}}",
+              "host": [
+                "{{host}}"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "api",
+                "index-reviews",
+                "results",
+                "{{reviewResultId}}",
+                "securities",
+                "{{securityId}}",
+                "audit"
+              ]
             },
             "description": "Returns ordered audit events for security `177` from the integration test scenario."
           },

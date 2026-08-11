@@ -5,6 +5,12 @@ import lombok.Setter;
 
 import java.math.RoundingMode;
 
+/**
+ * Core PrecisionProperties component for the SIX index review workflow.
+ *
+ * Kept intentionally concise so the business meaning remains visible
+ * without obscuring the implementation.
+ */
 @Getter
 @Setter
 public class PrecisionProperties {

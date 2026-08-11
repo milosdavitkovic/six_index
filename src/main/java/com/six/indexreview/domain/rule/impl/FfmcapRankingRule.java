@@ -13,6 +13,12 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Calculates FFMCAP and produces the ranked eligible universe.
+ *
+ * The rule keeps methodology-specific ranking behavior isolated so tie-breaker
+ * changes can be introduced through configuration or a new strategy.
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -36,6 +42,8 @@ public class FfmcapRankingRule implements RankingRule {
         log.info("Starting rule {} eligible={}", code(), context.eligibleSecurities().size());
         List<EligibleSecurity> calculated = new ArrayList<>();
         for (EligibleSecurity security : context.eligibleSecurities()) {
+            // The ranking step depends on the exact FFMCAP values calculated
+            // from the review-date snapshot, not on any persisted approximation.
             var ffmcap = calculator.calculate(security.price(), security.shares(), security.freeFloat());
             calculated.add(new EligibleSecurity(security.securityId(), security.price(), security.shares(),
                     security.freeFloat(), ffmcap, security.currentConstituent()));
@@ -46,6 +54,8 @@ public class FfmcapRankingRule implements RankingRule {
                     ffmcap.toPlainString());
         }
         context.replaceEligible(calculated);
+        // Stable sorting plus a final security-ID tie-breaker guarantees
+        // reproducible rankings across repeated runs.
         List<RankedSecurity> ranked = ranker.rank(calculated, context.definition().tieBreakers());
         context.replaceRanked(ranked);
         for (int i = 0; i < ranked.size(); i++) {

@@ -9,6 +9,7 @@ import java.util.*;
 
 /** Mutable execution state owned by one review run; rules only communicate through this object. */
 public final class IndexReviewContext {
+    private static final String VALUES_MUST_NOT_BE_NULL = "values must not be null";
     private final IndexDefinition definition;
     private final Set<SecurityId> universe;
     private final Map<SecurityId, com.six.indexreview.domain.model.MarketData> cutOffMarketData;
@@ -27,13 +28,14 @@ public final class IndexReviewContext {
 
     public IndexReviewContext(IndexDefinition definition, ReviewDataSnapshot snapshot,
                               PrecisionPolicy precisionPolicy, Instant executionTimestamp) {
-        this.definition = definition;
-        this.universe = Collections.unmodifiableSet(new TreeSet<>(snapshot.universe()));
-        this.cutOffMarketData = Collections.unmodifiableMap(new LinkedHashMap<>(snapshot.cutOffMarketData()));
-        this.reviewMarketData = Collections.unmodifiableMap(new LinkedHashMap<>(snapshot.reviewMarketData()));
-        this.currentComposition = Collections.unmodifiableSet(new LinkedHashSet<>(snapshot.currentComposition()));
-        this.precisionPolicy = precisionPolicy;
-        this.executionTimestamp = executionTimestamp;
+        this.definition = Objects.requireNonNull(definition, "definition must not be null");
+        Objects.requireNonNull(snapshot, "snapshot must not be null");
+        this.universe = Collections.unmodifiableSet(new TreeSet<>(Objects.requireNonNull(snapshot.universe(), "universe must not be null")));
+        this.cutOffMarketData = Collections.unmodifiableMap(new LinkedHashMap<>(Objects.requireNonNull(snapshot.cutOffMarketData(), "cutOffMarketData must not be null")));
+        this.reviewMarketData = Collections.unmodifiableMap(new LinkedHashMap<>(Objects.requireNonNull(snapshot.reviewMarketData(), "reviewMarketData must not be null")));
+        this.currentComposition = Collections.unmodifiableSet(new LinkedHashSet<>(Objects.requireNonNull(snapshot.currentComposition(), "currentComposition must not be null")));
+        this.precisionPolicy = Objects.requireNonNull(precisionPolicy, "precisionPolicy must not be null");
+        this.executionTimestamp = Objects.requireNonNull(executionTimestamp, "executionTimestamp must not be null");
     }
 
     public IndexDefinition definition() {
@@ -98,7 +100,7 @@ public final class IndexReviewContext {
 
     public void replaceEligible(List<EligibleSecurity> values) {
         eligibleSecurities.clear();
-        eligibleSecurities.addAll(values);
+        eligibleSecurities.addAll(Objects.requireNonNull(values, VALUES_MUST_NOT_BE_NULL));
     }
 
     public void addRejected(RejectedSecurity value) {
@@ -107,21 +109,21 @@ public final class IndexReviewContext {
 
     public void replaceRanked(List<RankedSecurity> values) {
         rankedSecurities.clear();
-        rankedSecurities.addAll(values);
+        rankedSecurities.addAll(Objects.requireNonNull(values, VALUES_MUST_NOT_BE_NULL));
     }
 
     public void replaceSelected(List<SelectedConstituent> values) {
         selectedConstituents.clear();
-        selectedConstituents.addAll(values);
+        selectedConstituents.addAll(Objects.requireNonNull(values, VALUES_MUST_NOT_BE_NULL));
     }
 
     public void replaceDecisions(List<ReviewDecision> values) {
         decisions.clear();
-        decisions.addAll(values);
+        decisions.addAll(Objects.requireNonNull(values, VALUES_MUST_NOT_BE_NULL));
     }
 
     public void addValidationErrors(List<ValidationError> values) {
-        validationErrors.addAll(values);
+        validationErrors.addAll(Objects.requireNonNull(values, VALUES_MUST_NOT_BE_NULL));
     }
 
     public void addValidationWarning(ValidationError value) {
