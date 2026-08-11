@@ -1,0 +1,449 @@
+{
+  "info": {
+    "_postman_id": "2a8b3f40-2c7a-4e24-9d07-0cb0a98c3d8e",
+    "name": "six_index API",
+    "description": "Postman collection for the `com.six.indexreview.api` endpoints.\n\nThe review requests and test assertions mirror `IndexReviewControllerIntegrationTest`:\n- `SMI` / `Q3-2026` review run\n- `177` as the audit security id\n- `SMIM` as the invalid configuration example\n\nFor multipart imports, attach the CSV files from the repo `data/` folder:\n- `data/spi_universe.csv`\n- `data/sec_data.csv`\n- `data/composition.csv`",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Get API health",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/health"
+            },
+            "description": "Health probe for the running application."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('returns UP and the application name', function () {",
+                  "  pm.expect(body).to.deep.equal({ status: 'UP', service: 'index-review' });",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Import",
+      "item": [
+        {
+          "name": "Import all datasets",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "spiUniverse",
+                  "type": "file",
+                  "src": "C:\\Users\\e559706\\Documents\\work\\sbb\\bitbacket-repos\\six_index\\data\\spi_universe.csv"
+                },
+                {
+                  "key": "securityData",
+                  "type": "file",
+                  "src": "C:\\Users\\e559706\\Documents\\work\\sbb\\bitbacket-repos\\six_index\\data\\sec_data.csv"
+                },
+                {
+                  "key": "composition",
+                  "type": "file",
+                  "src": "C:\\Users\\e559706\\Documents\\work\\sbb\\bitbacket-repos\\six_index\\data\\composition.csv"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/import/all"
+            },
+            "description": "Imports the three sample CSVs used by the integration tests."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 201', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('returns dataset summary for all three imports', function () {",
+                  "  pm.expect(body.spiUniverse.dataset).to.equal('SPI_UNIVERSE');",
+                  "  pm.expect(body.spiUniverse.inputRows).to.equal(409);",
+                  "  pm.expect(body.spiUniverse.storedRows).to.equal(409);",
+                  "  pm.expect(body.spiUniverse.deduplicatedRows).to.equal(0);",
+                  "  pm.expect(body.securityData.dataset).to.equal('SECURITY_DATA');",
+                  "  pm.expect(body.securityData.inputRows).to.equal(409);",
+                  "  pm.expect(body.securityData.storedRows).to.equal(409);",
+                  "  pm.expect(body.securityData.deduplicatedRows).to.equal(0);",
+                  "  pm.expect(body.composition.dataset).to.equal('COMPOSITION');",
+                  "  pm.expect(body.composition.inputRows).to.equal(20);",
+                  "  pm.expect(body.composition.storedRows).to.equal(20);",
+                  "  pm.expect(body.composition.deduplicatedRows).to.equal(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Import SPI universe",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "C:\\Users\\e559706\\Documents\\work\\sbb\\bitbacket-repos\\six_index\\data\\spi_universe.csv"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/import/spi-universe"
+            },
+            "description": "Single-file import using `data/spi_universe.csv`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 201', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('returns SPI_UNIVERSE counts', function () {",
+                  "  pm.expect(body.dataset).to.equal('SPI_UNIVERSE');",
+                  "  pm.expect(body.inputRows).to.equal(409);",
+                  "  pm.expect(body.storedRows).to.equal(409);",
+                  "  pm.expect(body.deduplicatedRows).to.equal(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Import security data",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "C:\\Users\\e559706\\Documents\\work\\sbb\\bitbacket-repos\\six_index\\data\\sec_data.csv"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/import/security-data"
+            },
+            "description": "Single-file import using `data/sec_data.csv`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 201', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('returns SECURITY_DATA counts', function () {",
+                  "  pm.expect(body.dataset).to.equal('SECURITY_DATA');",
+                  "  pm.expect(body.inputRows).to.equal(409);",
+                  "  pm.expect(body.storedRows).to.equal(409);",
+                  "  pm.expect(body.deduplicatedRows).to.equal(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Import composition",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "C:\\Users\\e559706\\Documents\\work\\sbb\\bitbacket-repos\\six_index\\data\\composition.csv"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/import/composition"
+            },
+            "description": "Single-file import using `data/composition.csv`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 201', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('returns COMPOSITION counts', function () {",
+                  "  pm.expect(body.dataset).to.equal('COMPOSITION');",
+                  "  pm.expect(body.inputRows).to.equal(20);",
+                  "  pm.expect(body.storedRows).to.equal(20);",
+                  "  pm.expect(body.deduplicatedRows).to.equal(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Index reviews",
+      "item": [
+        {
+          "name": "Run review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/index-reviews/{{indexCode}}/{{reviewPeriod}}/run"
+            },
+            "description": "Runs the deterministic review flow for the integration-test scenario (`SMI` / `Q3-2026`)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('matches the integration-test scenario', function () {",
+                  "  pm.expect(body.indexCode).to.equal(pm.environment.get('indexCode'));",
+                  "  pm.expect(body.reviewPeriod).to.equal(pm.environment.get('reviewPeriod'));",
+                  "  pm.expect(body.status).to.equal('COMPLETED_WITH_WARNINGS');",
+                  "  pm.expect(body.constituents).to.have.lengthOf(20);",
+                  "  pm.expect(body.joiners).to.include(177);",
+                  "  pm.expect(body.leavers).to.include(103);",
+                  "});",
+                  "",
+                  "pm.test('captures the reviewResultId for follow-up requests', function () {",
+                  "  pm.expect(body.reviewResultId).to.exist;",
+                  "  pm.environment.set('reviewResultId', String(body.reviewResultId));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Run review - invalid configuration",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/index-reviews/{{invalidIndexCode}}/{{reviewPeriod}}/run"
+            },
+            "description": "Matches the integration test that expects a 400 `INVALID_REQUEST` response for `SMIM` / `Q3-2026`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 400', function () {",
+                  "  pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('returns INVALID_REQUEST', function () {",
+                  "  pm.expect(body.status).to.equal(400);",
+                  "  pm.expect(body.errorCode).to.equal('INVALID_REQUEST');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Latest review",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/index-reviews/{{indexCode}}/{{reviewPeriod}}/latest"
+            },
+            "description": "Returns the latest review for the configured index and review period."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('latest review matches the stored reviewResultId', function () {",
+                  "  pm.expect(String(body.reviewResultId)).to.equal(pm.environment.get('reviewResultId'));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Review by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/index-reviews/results/{{reviewResultId}}"
+            },
+            "description": "Fetches the review result stored by the `Run review` request."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('response contains the same reviewResultId and 20 constituents', function () {",
+                  "  pm.expect(String(body.reviewResultId)).to.equal(pm.environment.get('reviewResultId'));",
+                  "  pm.expect(body.constituents).to.have.lengthOf(20);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Security audit",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/index-reviews/results/{{reviewResultId}}/securities/{{securityId}}/audit"
+            },
+            "description": "Returns ordered audit events for security `177` from the integration test scenario."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('returns audit rows for the selected security', function () {",
+                  "  pm.expect(body.length).to.be.greaterThan(0);",
+                  "  pm.expect(body[0].securityId).to.equal(Number(pm.environment.get('securityId')));",
+                  "  pm.expect(body[0].ruleCode).to.not.be.empty;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

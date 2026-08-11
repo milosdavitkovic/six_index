@@ -1,5 +1,15 @@
 # Validation
 
-`DataValidationService` checks the review snapshot before calculation: a universe and current composition must exist, composition size must match the configured constituent count, the universe must be large enough, cut-off prices and review-date shares must be positive, and review-date free float must be present in `[0, 1]`.
+The validation package checks the review snapshot before the engine runs and separates blocking structural failures from security-level warnings.
 
-Validation findings are immutable `ValidationError` values with a code, field, message, optional security ID, and `ValidationSeverity` (`ERROR` or `WARNING`). Structural errors stop the review through `ReviewValidationException`; security-level data warnings allow the eligibility rule to reject affected securities. `ValidationRule` is the extension point for additional validation rules.
+## Components
+
+- `DataValidationService`: verifies the snapshot contains the required inputs and basic value constraints.
+- `ValidationError`: immutable finding with a code, field, message, optional security ID, and severity.
+- `ValidationRule`: extension point for additional validation checks.
+
+## Notes
+
+- Structural errors stop the review through `ReviewValidationException`.
+- Security-level warnings allow the eligibility rule to reject affected securities while the review continues.
+- The validation rules enforce composition size, universe coverage, positive cut-off prices and review-date shares, and review-date free float in `[0, 1]`.

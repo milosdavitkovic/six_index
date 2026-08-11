@@ -1,6 +1,12 @@
 # CSV adapters
 
-Readers consume UTF-8 CSV and return typed rows. Headers are trimmed, case-insensitive, and BOM-tolerant; dates use ISO-8601 `yyyy-MM-dd`; decimal values use Java `BigDecimal` syntax.
+## Overview
+
+The CSV adapter package reads the imported datasets and returns typed rows for the application layer.
+
+## Components
+
+Readers consume UTF-8 CSV and are BOM-tolerant. Headers are trimmed and case-insensitive; dates use ISO-8601 `yyyy-MM-dd`; decimal values use Java `BigDecimal` syntax.
 
 | Dataset | Required columns | Delimiter |
 |---|---|---|
@@ -8,4 +14,8 @@ Readers consume UTF-8 CSV and return typed rows. Headers are trimmed, case-insen
 | Security data | `id`, `date`, `price`, `free_float`, `shares` | `;` |
 | Composition | `id` | `,` or `;` (detected from the header) |
 
-Empty files, missing headers, empty required values, invalid dates/decimals, and files without rows raise `DataImportException`. `CsvParsingUtils` centralizes header lookup and scalar parsing. Import services deduplicate identical keys and reject conflicting duplicates.
+## Notes
+
+- Empty files, missing headers, empty required values, invalid dates/decimals, and files without rows raise `DataImportException`.
+- `CsvParsingUtils` centralizes header lookup and scalar parsing.
+- Import services deduplicate identical keys and reject conflicting duplicates.

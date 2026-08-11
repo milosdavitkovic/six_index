@@ -99,6 +99,14 @@ curl http://localhost:8080/api/health
 
 Successful imports return `201 Created`. Errors use a consistent JSON `ErrorResponse`; common statuses are `400` for invalid requests/imports, `404` for missing results, `422` for review validation failures, and `500` for execution or persistence failures.
 
+## Postman assets
+
+Use the ready-made Postman files in [`postman/`](postman/):
+
+- [`postman/README.md`](postman/README.md) for import and run instructions
+- [`postman/six_index_api.postman_collection.json`](postman/six_index_api.postman_collection.json)
+- [`postman/six_index_local.postman_environment.json`](postman/six_index_local.postman_environment.json)
+
 ## Configuration
 
 Configuration is in [`src/main/resources/application.yaml`](src/main/resources/application.yaml). Important properties include:

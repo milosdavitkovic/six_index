@@ -1,6 +1,8 @@
 # Domain services
 
-Reusable calculations and deterministic helpers used by review rules:
+The domain service package contains reusable calculations and deterministic helpers used by the review rules.
+
+## Components
 
 - `FreeFloatMarketCapCalculator`: calculates price × shares × free-float.
 - `DeterministicRanker`: orders eligible securities by FFMCAP and configured tie-breakers.
@@ -9,3 +11,8 @@ Reusable calculations and deterministic helpers used by review rules:
 - `WeightCapper`: abstraction for final-weight capping; the engine uses the iterative implementation.
 - `PrecisionPolicy`: applies configured internal/output scales and rounding mode.
 - `AuditEventFactory`: creates timestamped audit events using the injected clock.
+
+## Notes
+
+- These services are deterministic and avoid repository access.
+

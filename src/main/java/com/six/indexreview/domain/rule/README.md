@@ -1,7 +1,15 @@
 # Review rules
 
-The rule contracts define the pluggable stages of a review: validation, eligibility, ranking, selection, buffering, joiner/leaver handling, weight calculation, weight capping, and audit reporting.
+The review rule package defines the pluggable stages of an index review.
 
-Implementations live in `impl` and expose a stable `code()`, a human-readable `description()`, and `apply(IndexReviewContext)`. The default pipeline uses FFMCAP ranking and weighting, top-N selection, SPI eligibility, optional configurable buffering, deterministic joiner/leaver decisions, iterative proportional capping, and audit events.
+## Components
 
-The buffer strategy is selected from configuration. `NoOpBufferRule` leaves selection unchanged; `ConfigurableBufferRule` can retain current constituents through the configured retention rank. Unsupported rule selections fail the review with `ReviewExecutionException`.
+- `ReviewRule`: the base contract for each rule.
+- `impl`: the concrete rule implementations.
+
+## Notes
+
+- Rules expose a stable `code()`, a human-readable `description()`, and `apply(IndexReviewContext)`.
+- The default pipeline uses SPI eligibility, FFMCAP ranking and weighting, top-N selection, optional buffering, deterministic joiner/leaver decisions, iterative proportional capping, and audit events.
+- `NoOpBufferRule` leaves selection unchanged; `ConfigurableBufferRule` can retain current constituents through the configured retention rank.
+- Unsupported rule selections fail the review with `ReviewExecutionException`.

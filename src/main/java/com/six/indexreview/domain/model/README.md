@@ -1,7 +1,16 @@
 # Domain model
 
-Framework-independent records and enums describing an index review.
+The domain model package contains the framework-independent records and enums that describe an index review.
 
-Core definitions are `IndexCode`, `IndexDefinition`, `ReviewDates`, and `ReviewSchedule`. Input values are represented by `Security`, `SecurityId`, `MarketData`, `CurrentComposition`, and the eligibility/ranking records. Output is represented by `SelectedConstituent`, `ReviewDecision`, `ReviewResult`, `AuditEvent`, and `RejectedSecurity`.
+## Components
 
-`DecisionType` distinguishes `JOINER`, `LEAVER`, `UNCHANGED`, and `NOT_SELECTED`; `ReviewStatus` describes review completion. Value objects validate and normalize their invariants, while selected constituents preserve rank, FFMCAP, raw/final weights, capping metadata, and decision information.
+- `IndexCode`, `IndexDefinition`, `ReviewDates`, and `ReviewSchedule`: review configuration and schedule metadata.
+- `Security`, `SecurityId`, `MarketData`, and `CurrentComposition`: imported input values.
+- `SelectedConstituent`, `ReviewDecision`, `ReviewResult`, `AuditEvent`, and `RejectedSecurity`: review output values.
+- `DecisionType`: distinguishes `JOINER`, `LEAVER`, `UNCHANGED`, and `NOT_SELECTED`.
+- `ReviewStatus`: describes review completion.
+
+## Notes
+
+- Value objects validate and normalize their invariants.
+- Selected constituents preserve rank, FFMCAP, raw/final weights, capping metadata, and decision information for auditability.
