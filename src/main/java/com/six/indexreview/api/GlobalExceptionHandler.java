@@ -67,9 +67,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse unexpected(Exception exception) {
-        String message = exception.getMessage();
         log.error("Unexpected server error", exception);
-        return error(500, "INTERNAL_ERROR", message == null ? "Unexpected server error" : message, List.of());
+        return error(500, "INTERNAL_ERROR", "Unexpected server error", List.of());
     }
 
     private ValidationErrorResponse toResponse(ValidationError error) {
