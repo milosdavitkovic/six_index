@@ -16,7 +16,7 @@ Deterministic Spring Boot service for SIX index reviews. The application imports
 - `src/main/java/com/six/indexreview/application` — application orchestration and exception handling
 - `src/main/java/com/six/indexreview/domain` — deterministic business logic, calculations, and rules
 - `src/main/java/com/six/indexreview/infrastructure` — CSV, configuration, and persistence adapters
-- `src/main/resources/application.yaml` — default local configuration
+- `src/main/resources/application.yaml` — default local configuration (the H2 web console is disabled by default and only enabled in the `local` profile)
 - `src/test/java` — unit and integration tests
 - `data/` — sample CSV inputs used by the tests and local smoke checks
 - `postman/` — Postman collection and environment for manual API exploration
@@ -81,6 +81,7 @@ Use the defaults in `src/main/resources/application.yaml`:
 - Spring Data JPA with `ddl-auto: create-drop`
 - Default HTTP port `8080`
 - Enabled index configuration `SMI`
+
 
 If you want to override values locally, create an IntelliJ run configuration or environment variables for your session only. Do **not** commit secrets or machine-specific values.
 

@@ -15,7 +15,8 @@ public interface ReviewResultRepositoryPort {
 
     Optional<ReviewResultEntity> findReviewResultById(Long id);
 
-    Optional<ReviewResultEntity> findTopByIndexCodeAndReviewPeriodOrderByCreatedAtDescIdDesc(String indexCode, String reviewPeriod);
+    Optional<ReviewResultEntity> findTopByIndexCodeIgnoreCaseAndReviewPeriodIgnoreCaseOrderByCreatedAtDescIdDesc(String indexCode,
+                                                                                                               String reviewPeriod);
 }
 
 

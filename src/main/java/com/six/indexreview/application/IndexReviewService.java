@@ -5,6 +5,7 @@ import com.six.indexreview.api.dto.ReviewResponse;
 import com.six.indexreview.application.exception.ResourceNotFoundException;
 import com.six.indexreview.domain.engine.IndexReviewContext;
 import com.six.indexreview.domain.engine.IndexReviewEngine;
+import com.six.indexreview.domain.model.AuditEvent;
 import com.six.indexreview.domain.model.IndexDefinition;
 import com.six.indexreview.domain.model.ReviewResult;
 import com.six.indexreview.domain.service.PrecisionPolicy;
@@ -77,7 +78,7 @@ public class IndexReviewService {
         Objects.requireNonNull(indexCode, "indexCode must not be null");
         Objects.requireNonNull(reviewPeriod, "reviewPeriod must not be null");
         ReviewResultEntity entity = reviewResultRepository
-                .findTopByIndexCodeAndReviewPeriodOrderByCreatedAtDescIdDesc(indexCode.toUpperCase(), reviewPeriod)
+                .findTopByIndexCodeIgnoreCaseAndReviewPeriodIgnoreCaseOrderByCreatedAtDescIdDesc(indexCode, reviewPeriod)
                 .orElseThrow(() -> new ResourceNotFoundException("No review result found for " + indexCode + "/" + reviewPeriod));
         return reviewResultAssembler.toResponse(reviewResultMapper.toDomain(entity));
     }
@@ -98,7 +99,12 @@ public class IndexReviewService {
         // Audit events are returned in execution order to explain the inclusion
         // or exclusion path for a single security.
         return auditEventRepository.findAuditEventsForSecurity(reviewResultId, securityId)
-                .stream().map(value -> new AuditEventResponse(value.getTimestamp(), value.getRuleCode(), value.getSecurityId(),
-                        value.getMessage(), value.getInputValue(), value.getOutputValue())).toList();
+                .stream().map(IndexReviewService::toAuditEventResponse).toList();
+    }
+
+    private static AuditEventResponse toAuditEventResponse(AuditEvent value) {
+        return new AuditEventResponse(value.timestamp(), value.ruleCode(),
+                value.securityId() == null ? null : value.securityId().value(),
+                value.message(), value.inputValue(), value.outputValue());
     }
 }

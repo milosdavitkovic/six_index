@@ -1,6 +1,6 @@
 package com.six.indexreview.domain.repository;
 
-import com.six.indexreview.infrastructure.persistence.entity.AuditEventEntity;
+import com.six.indexreview.domain.model.AuditEvent;
 
 import java.util.List;
 
@@ -11,6 +11,6 @@ import java.util.List;
  * impacting methodology logic.
  */
 public interface AuditRepositoryPort {
-    List<AuditEventEntity> findAuditEventsForSecurity(Long reviewResultId, Integer securityId);
+    List<AuditEvent> findAuditEventsForSecurity(Long reviewResultId, Integer securityId);
 }
 

@@ -44,6 +44,10 @@ class IndexReviewServiceIntegrationTest {
 
         ReviewResponse latest = indexReviewService.latest("SMI", "Q3-2026");
         assertThat(latest.reviewResultId()).isEqualTo(response.reviewResultId());
+
+        ReviewResponse latestLowerCase = indexReviewService.latest("SMI", "q3-2026");
+        assertThat(latestLowerCase.reviewResultId()).isEqualTo(response.reviewResultId());
+
         assertThat(indexReviewService.auditForSecurity(response.reviewResultId(), 177)).isNotEmpty();
     }
 

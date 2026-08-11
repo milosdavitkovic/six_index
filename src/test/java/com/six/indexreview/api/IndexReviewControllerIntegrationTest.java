@@ -64,6 +64,10 @@ class IndexReviewControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.reviewResultId").value(reviewResultId));
 
+        mockMvc.perform(get("/api/index-reviews/SMI/q3-2026/latest"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.reviewResultId").value(reviewResultId));
+
         mockMvc.perform(get("/api/index-reviews/results/{reviewResultId}", reviewResultId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.reviewResultId").value(reviewResultId))

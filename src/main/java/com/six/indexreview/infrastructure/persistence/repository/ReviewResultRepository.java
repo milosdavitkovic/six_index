@@ -14,6 +14,6 @@ import java.util.Optional;
 public interface ReviewResultRepository extends JpaRepository<ReviewResultEntity, Long> {
     Optional<ReviewResultEntity> findById(Long id);
 
-    Optional<ReviewResultEntity> findTopByIndexCodeAndReviewPeriodOrderByCreatedAtDescIdDesc(String indexCode,
-                                                                                                String reviewPeriod);
+    Optional<ReviewResultEntity> findTopByIndexCodeIgnoreCaseAndReviewPeriodIgnoreCaseOrderByCreatedAtDescIdDesc(String indexCode,
+                                                                                                                String reviewPeriod);
 }
