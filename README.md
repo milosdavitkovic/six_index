@@ -25,6 +25,13 @@ On Windows PowerShell:
 \.\mvnw.cmd test
 ```
 
+A successful run ends with `BUILD SUCCESS` and reports all tests passing. The sample
+integration scenario uses the default SMI configuration and verifies 20 selected
+constituents with a final weight sum of `1.00`.
+
+The same test command is run automatically by the [GitHub Actions build workflow](.github/workflows/build.yml)
+for every push and pull request.
+
 Start the application:
 
 ```shell
