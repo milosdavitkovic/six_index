@@ -15,7 +15,7 @@ import java.util.List;
  * without obscuring the implementation.
  */
 @Component
-public class WeightCalculator {
+public class WeightCalculator implements WeightingStrategy {
     private final PrecisionPolicy precisionPolicy;
 
     public WeightCalculator() {

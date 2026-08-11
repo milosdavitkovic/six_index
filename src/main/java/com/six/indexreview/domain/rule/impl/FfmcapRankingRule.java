@@ -56,7 +56,7 @@ public class FfmcapRankingRule implements RankingRule {
         context.replaceEligible(calculated);
         // Stable sorting plus a final security-ID tie-breaker guarantees
         // reproducible rankings across repeated runs.
-        List<RankedSecurity> ranked = ranker.rank(calculated, context.definition().tieBreakers());
+        List<RankedSecurity> ranked = ranker.rank(calculated, context.definition().methodology().tieBreakers());
         context.replaceRanked(ranked);
         for (int i = 0; i < ranked.size(); i++) {
             RankedSecurity security = ranked.get(i);

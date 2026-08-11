@@ -13,7 +13,7 @@ import java.util.List;
  * be introduced without changing the ranking implementation.
  */
 @Component
-public class ConstituentSelector {
+public class ConstituentSelector implements SelectionStrategy {
 
     public List<SelectedConstituent> select(List<RankedSecurity> ranked, int constituentCount) {
         // Top-N selection remains deterministic because ranking order is already

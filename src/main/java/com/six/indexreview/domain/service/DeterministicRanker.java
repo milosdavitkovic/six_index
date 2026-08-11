@@ -17,7 +17,7 @@ import java.util.List;
  */
 @Slf4j
 @Component
-public class DeterministicRanker {
+public class DeterministicRanker implements RankingStrategy {
 
     public List<RankedSecurity> rank(List<EligibleSecurity> securities, List<String> tieBreakers) {
         List<EligibleSecurity> sorted = new ArrayList<>(securities);

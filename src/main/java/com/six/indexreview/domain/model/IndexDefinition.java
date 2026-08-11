@@ -5,10 +5,11 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Immutable data carrier for IndexDefinition.
+ * Immutable definition of an index review run.
  *
- * Kept intentionally concise so the business meaning remains visible
- * without obscuring the implementation.
+ * The definition exposes a derived {@link MethodologyConfiguration} view so
+ * methodology rules stay configuration-driven and future SIX indices can be
+ * introduced without changing the review workflow.
  */
 public record IndexDefinition(
         IndexCode indexCode,
@@ -40,5 +41,16 @@ public record IndexDefinition(
             throw new IllegalArgumentException("Maximum weight must be between 0 and 1");
         }
         tieBreakers = tieBreakers == null ? List.of() : List.copyOf(tieBreakers);
+    }
+
+    /**
+     * Returns the methodology configuration for this index.
+     *
+     * Methodology rules are configuration-driven to minimize future implementation
+     * effort when index rules evolve.
+     */
+    public MethodologyConfiguration methodology() {
+        return new MethodologyConfiguration(constituentCount, maxWeight, rankingRule, selectionRule,
+                bufferRule, tieBreakers, bufferRetentionRank);
     }
 }

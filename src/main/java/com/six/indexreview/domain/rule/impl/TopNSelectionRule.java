@@ -31,14 +31,14 @@ public class TopNSelectionRule implements SelectionRule {
 
     @Override
     public IndexReviewContext apply(IndexReviewContext context) {
-        log.info("Starting rule {} constituentCount={}", code(), context.definition().constituentCount());
-        if (!"TOP_N".equalsIgnoreCase(context.definition().selectionRule())
-                && !"TOP_N_WITH_BUFFER".equalsIgnoreCase(context.definition().selectionRule())) {
-            throw new IllegalArgumentException("Unsupported selection rule: " + context.definition().selectionRule());
+        log.info("Starting rule {} constituentCount={}", code(), context.definition().methodology().constituentCount());
+        if (!"TOP_N".equalsIgnoreCase(context.definition().methodology().selectionRule())
+                && !"TOP_N_WITH_BUFFER".equalsIgnoreCase(context.definition().methodology().selectionRule())) {
+            throw new IllegalArgumentException("Unsupported selection rule: " + context.definition().methodology().selectionRule());
         }
         // The ranked list is already deterministic; truncation preserves that
         // order and therefore the final selected set.
-        context.replaceSelected(selector.select(context.rankedSecurities(), context.definition().constituentCount()));
+        context.replaceSelected(selector.select(context.rankedSecurities(), context.definition().methodology().constituentCount()));
         context.selectedConstituents().forEach(value -> context.audit(code(), value.securityId(),
                 "Security selected by top-N rule.", "rank=" + value.rank(), "SELECTED"));
         log.info("Completed rule {} selected={}", code(), context.selectedConstituents().size());

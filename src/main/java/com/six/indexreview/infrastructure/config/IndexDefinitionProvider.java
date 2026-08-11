@@ -21,6 +21,15 @@ import java.util.Locale;
 public class IndexDefinitionProvider {
     private final IndexReviewProperties properties;
 
+    public IndexDefinition defaultDefinition() {
+        return properties.getIndices().values().stream()
+                .filter(IndexConfiguration::isEnabled)
+                .findFirst()
+                .map(configuration -> get(configuration.getIndexCode() == null ? configuration.getName() : configuration.getIndexCode(),
+                        configuration.getReviewPeriod()))
+                .orElseThrow(() -> new IllegalArgumentException("No enabled index configuration found"));
+    }
+
     public IndexDefinition get(String indexCode, String reviewPeriod) {
         IndexConfiguration configuration = properties.getIndices().entrySet().stream()
                 .filter(entry -> entry.getKey().equalsIgnoreCase(indexCode)
@@ -49,7 +58,7 @@ public class IndexDefinitionProvider {
                 configuration.isEnabled(),
                 configuration.getBufferRetentionRank());
         log.info("Loaded index configuration indexCode={} reviewPeriod={} constituentCount={} maxWeight={}",
-                definition.indexCode(), definition.reviewPeriod(), definition.constituentCount(), definition.maxWeight());
+                definition.indexCode(), definition.reviewPeriod(), definition.methodology().constituentCount(), definition.methodology().maxWeight());
         return definition;
     }
 

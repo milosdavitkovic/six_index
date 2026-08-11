@@ -154,7 +154,7 @@ public class CsvImportService {
 
     @Transactional
     public ImportResult importComposition(MultipartFile file) {
-        var definition = indexDefinitionProvider.get("SMI", "Q3-2026");
+        var definition = indexDefinitionProvider.defaultDefinition();
         return self.importComposition(file, definition.indexCode().value(), definition.reviewPeriod());
     }
 

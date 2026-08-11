@@ -93,9 +93,8 @@ public class IndexReviewService {
     @Transactional(readOnly = true)
     public List<AuditEventResponse> auditForSecurity(Long reviewResultId, int securityId) {
         Objects.requireNonNull(reviewResultId, "reviewResultId must not be null");
-        if (!reviewResultRepository.existsById(reviewResultId)) {
-            throw new ResourceNotFoundException("Review result not found: " + reviewResultId);
-        }
+        reviewResultRepository.findById(reviewResultId)
+                .orElseThrow(() -> new ResourceNotFoundException("Review result not found: " + reviewResultId));
         // Audit events are returned in execution order to explain the inclusion
         // or exclusion path for a single security.
         return auditEventRepository.findAllByReviewResult_IdAndSecurityIdOrderBySequenceNumberAsc(reviewResultId, securityId)

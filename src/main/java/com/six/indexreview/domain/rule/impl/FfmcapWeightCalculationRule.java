@@ -3,7 +3,7 @@ package com.six.indexreview.domain.rule.impl;
 import com.six.indexreview.application.exception.ReviewValidationException;
 import com.six.indexreview.domain.engine.IndexReviewContext;
 import com.six.indexreview.domain.rule.WeightCalculationRule;
-import com.six.indexreview.domain.service.WeightCalculator;
+import com.six.indexreview.domain.service.WeightingStrategy;
 import com.six.indexreview.validation.ValidationError;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class FfmcapWeightCalculationRule implements WeightCalculationRule {
-    private final WeightCalculator weightCalculator;
+    private final WeightingStrategy weightCalculator;
 
     @Override
     public String code() {
