@@ -15,7 +15,7 @@ spring:
         format_sql: false
   h2:
     console:
-      enabled: true
+      enabled: false
   servlet:
     multipart:
       max-file-size: 8MB

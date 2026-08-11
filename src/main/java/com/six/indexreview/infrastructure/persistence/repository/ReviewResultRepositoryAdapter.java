@@ -29,8 +29,9 @@ public class ReviewResultRepositoryAdapter implements ReviewResultRepositoryPort
     }
 
     @Override
-    public Optional<ReviewResultEntity> findTopByIndexCodeAndReviewPeriodOrderByCreatedAtDescIdDesc(String indexCode, String reviewPeriod) {
-        return delegate.findTopByIndexCodeAndReviewPeriodOrderByCreatedAtDescIdDesc(indexCode, reviewPeriod);
+    public Optional<ReviewResultEntity> findTopByIndexCodeIgnoreCaseAndReviewPeriodIgnoreCaseOrderByCreatedAtDescIdDesc(String indexCode,
+                                                                                                                      String reviewPeriod) {
+        return delegate.findTopByIndexCodeIgnoreCaseAndReviewPeriodIgnoreCaseOrderByCreatedAtDescIdDesc(indexCode, reviewPeriod);
     }
 }
 

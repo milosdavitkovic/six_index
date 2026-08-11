@@ -1,5 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="IndexReviewApp" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <option name="ACTIVE_PROFILES" value="local" />
     <module name="calculation" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="com.six.indexreview.IndexReviewApplication" />
     <method v="2">

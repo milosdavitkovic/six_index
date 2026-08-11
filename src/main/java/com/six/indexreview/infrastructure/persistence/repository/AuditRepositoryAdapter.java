@@ -1,7 +1,8 @@
 package com.six.indexreview.infrastructure.persistence.repository;
 
+import com.six.indexreview.domain.model.AuditEvent;
 import com.six.indexreview.domain.repository.AuditRepositoryPort;
-import com.six.indexreview.infrastructure.persistence.entity.AuditEventEntity;
+import com.six.indexreview.infrastructure.persistence.mapper.AuditEventMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -17,10 +18,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AuditRepositoryAdapter implements AuditRepositoryPort {
     private final AuditEventRepository delegate;
+    private final AuditEventMapper auditEventMapper;
 
     @Override
-    public List<AuditEventEntity> findAuditEventsForSecurity(Long reviewResultId, Integer securityId) {
-        return delegate.findAllByReviewResult_IdAndSecurityIdOrderBySequenceNumberAsc(reviewResultId, securityId);
+    public List<AuditEvent> findAuditEventsForSecurity(Long reviewResultId, Integer securityId) {
+        return delegate.findAllByReviewResult_IdAndSecurityIdOrderBySequenceNumberAsc(reviewResultId, securityId)
+                .stream()
+                .map(auditEventMapper::toDomain)
+                .toList();
     }
 }
 
