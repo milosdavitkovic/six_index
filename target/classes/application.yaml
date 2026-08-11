@@ -1,0 +1,57 @@
+spring:
+  application:
+    name: index-review
+  datasource:
+    url: jdbc:h2:mem:indexreview;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: false
+  h2:
+    console:
+      enabled: true
+  servlet:
+    multipart:
+      max-file-size: 8MB
+      max-request-size: 8MB
+
+index-review:
+  precision:
+    internal-scale: 16
+    output-scale: 10
+    rounding-mode: HALF_UP
+  indices:
+    SMI:
+      index-code: SMI
+      name: Swiss Market Index
+      constituent-count: 20
+      max-weight: 0.18
+      ranking-rule: FFMCAP
+      selection-rule: TOP_N
+      buffer-rule: NONE
+      review-period: Q3-2026
+      cut-off-date: 2026-09-10
+      review-date: 2026-09-21
+      enabled: true
+      tie-breakers:
+        - CURRENT_CONSTITUENT_FIRST
+        - SECURITY_ID_ASC
+    SMIM:
+      index-code: SMIM
+      name: Swiss Market Index Mid
+      constituent-count: 30
+      max-weight: 0.15
+      ranking-rule: FFMCAP
+      selection-rule: TOP_N_WITH_BUFFER
+      buffer-rule: CONFIGURABLE
+      buffer-retention-rank: 35
+      review-period: Q3-2026
+      cut-off-date: 2026-09-10
+      review-date: 2026-09-21
+      enabled: false
