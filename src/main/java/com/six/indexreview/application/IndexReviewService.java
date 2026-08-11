@@ -12,8 +12,8 @@ import com.six.indexreview.infrastructure.config.IndexDefinitionProvider;
 import com.six.indexreview.infrastructure.persistence.ReviewDataLoader;
 import com.six.indexreview.infrastructure.persistence.entity.ReviewResultEntity;
 import com.six.indexreview.infrastructure.persistence.mapper.ReviewResultMapper;
-import com.six.indexreview.infrastructure.persistence.repository.AuditEventRepository;
-import com.six.indexreview.infrastructure.persistence.repository.ReviewResultRepository;
+import com.six.indexreview.domain.repository.AuditRepositoryPort;
+import com.six.indexreview.domain.repository.ReviewResultRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -38,10 +38,10 @@ public class IndexReviewService {
     private final ReviewDataLoader reviewDataLoader;
     private final IndexReviewEngine reviewEngine;
     private final PrecisionPolicy precisionPolicy;
-    private final ReviewResultRepository reviewResultRepository;
+    private final ReviewResultRepositoryPort reviewResultRepository;
     private final ReviewResultMapper reviewResultMapper;
     private final ReviewResultAssembler reviewResultAssembler;
-    private final AuditEventRepository auditEventRepository;
+    private final AuditRepositoryPort auditEventRepository;
     private final Clock reviewClock;
 
     @Transactional
@@ -63,7 +63,7 @@ public class IndexReviewService {
         reviewEngine.execute(context);
         // Persist the full result after all rules have completed so the stored
         // record reflects the exact review state that was audited.
-        ReviewResultEntity saved = reviewResultRepository.save(reviewResultMapper.toEntity(context));
+        ReviewResultEntity saved = reviewResultRepository.saveReviewResult(reviewResultMapper.toEntity(context));
         ReviewResult result = reviewResultMapper.toDomain(saved);
         log.info("Index review completed reviewResultId={} eligible={} selected={} joiners={} leavers={}",
                 saved.getId(), result.totalEligibleSecurities(), result.totalSelectedConstituents(),
@@ -85,7 +85,7 @@ public class IndexReviewService {
     @Transactional(readOnly = true)
     public ReviewResponse byId(Long id) {
         Objects.requireNonNull(id, "id must not be null");
-        ReviewResultEntity entity = reviewResultRepository.findById(id)
+        ReviewResultEntity entity = reviewResultRepository.findReviewResultById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Review result not found: " + id));
         return reviewResultAssembler.toResponse(reviewResultMapper.toDomain(entity));
     }
@@ -93,11 +93,11 @@ public class IndexReviewService {
     @Transactional(readOnly = true)
     public List<AuditEventResponse> auditForSecurity(Long reviewResultId, int securityId) {
         Objects.requireNonNull(reviewResultId, "reviewResultId must not be null");
-        reviewResultRepository.findById(reviewResultId)
+        reviewResultRepository.findReviewResultById(reviewResultId)
                 .orElseThrow(() -> new ResourceNotFoundException("Review result not found: " + reviewResultId));
         // Audit events are returned in execution order to explain the inclusion
         // or exclusion path for a single security.
-        return auditEventRepository.findAllByReviewResult_IdAndSecurityIdOrderBySequenceNumberAsc(reviewResultId, securityId)
+        return auditEventRepository.findAuditEventsForSecurity(reviewResultId, securityId)
                 .stream().map(value -> new AuditEventResponse(value.getTimestamp(), value.getRuleCode(), value.getSecurityId(),
                         value.getMessage(), value.getInputValue(), value.getOutputValue())).toList();
     }
