@@ -92,7 +92,7 @@ public class IterativeProportionalWeightCappingRule implements WeightCappingRule
 
         adjustToTarget(working, maxWeight, cappedIds, mathContext);
         Map<com.six.indexreview.domain.model.SecurityId, BigDecimal> output = outputWeights(constituents, working);
-        adjustOutputResidual(output, constituents, maxWeight);
+        adjustOutputResidual(output, constituents, maxWeight, cappedIds);
         validateOutput(output, maxWeight);
         return toResults(constituents, output, cappedIds);
     }
@@ -101,7 +101,11 @@ public class IterativeProportionalWeightCappingRule implements WeightCappingRule
         if (constituents == null || constituents.isEmpty()) throw new IllegalArgumentException("At least one constituent is required for capping");
         if (maxWeight == null || maxWeight.compareTo(BigDecimal.ZERO) <= 0 || maxWeight.compareTo(ONE) > 0) throw new IllegalArgumentException("Maximum weight must be between 0 and 1");
         if (maxWeight.multiply(BigDecimal.valueOf(constituents.size())).compareTo(ONE) < 0) throw new IllegalArgumentException("Weight cap is mathematically impossible for the selected count");
+        Set<com.six.indexreview.domain.model.SecurityId> ids = new HashSet<>();
         for (SelectedConstituent constituent : constituents) {
+            if (!ids.add(constituent.securityId())) {
+                throw new IllegalArgumentException("Duplicate security id: " + constituent.securityId());
+            }
             if (constituent.rawWeight() == null || constituent.rawWeight().compareTo(BigDecimal.ZERO) <= 0) {
                 throw new IllegalArgumentException("Raw weight must be positive for " + constituent.securityId());
             }
@@ -175,8 +179,11 @@ public class IterativeProportionalWeightCappingRule implements WeightCappingRule
         BigDecimal sum = output.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
         if (sum.compareTo(expected) != 0) throw new IllegalArgumentException("Final weights do not sum to " + expected + ": " + sum);
         for (BigDecimal value : output.values()) {
-            if (value.compareTo(precisionPolicy.output(maxWeight)) > 0) {
+            if (value.compareTo(maxWeight) > 0) {
                 throw new IllegalArgumentException("Final weight exceeds configured cap after rounding: " + value);
+            }
+            if (value.compareTo(BigDecimal.ZERO) < 0) {
+                throw new IllegalArgumentException("Final weight cannot be negative: " + value);
             }
         }
     }
@@ -236,25 +243,23 @@ public class IterativeProportionalWeightCappingRule implements WeightCappingRule
 
     private void adjustOutputResidual(Map<com.six.indexreview.domain.model.SecurityId, BigDecimal> output,
                                       List<SelectedConstituent> constituents,
-                                      BigDecimal maxWeight) {
+                                      BigDecimal maxWeight,
+                                      Set<com.six.indexreview.domain.model.SecurityId> cappedIds) {
         BigDecimal expected = precisionPolicy.output(ONE);
         BigDecimal sum = output.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal residual = expected.subtract(sum);
         if (residual.compareTo(BigDecimal.ZERO) == 0) {
             return;
         }
-        Set<com.six.indexreview.domain.model.SecurityId> capped = new HashSet<>();
-        constituents.stream().filter(SelectedConstituent::capped).map(SelectedConstituent::securityId).forEach(capped::add);
-        BigDecimal outputCap = precisionPolicy.output(maxWeight);
         Comparator<SelectedConstituent> largest = Comparator.comparing((SelectedConstituent value) -> output.get(value.securityId()))
                 .reversed().thenComparing(SelectedConstituent::securityId);
         List<SelectedConstituent> ordered = new ArrayList<>(constituents);
         ordered.sort(largest);
-        List<SelectedConstituent> preferred = ordered.stream().filter(value -> !capped.contains(value.securityId())).toList();
-        List<SelectedConstituent> fallback = ordered.stream().filter(value -> capped.contains(value.securityId())).toList();
+        List<SelectedConstituent> preferred = ordered.stream().filter(value -> !cappedIds.contains(value.securityId())).toList();
+        List<SelectedConstituent> fallback = ordered.stream().filter(value -> cappedIds.contains(value.securityId())).toList();
         for (SelectedConstituent value : concatConstituents(preferred, fallback)) {
             BigDecimal candidate = output.get(value.securityId()).add(residual);
-            if (candidate.compareTo(BigDecimal.ZERO) >= 0 && candidate.compareTo(outputCap) <= 0) {
+            if (candidate.compareTo(BigDecimal.ZERO) >= 0 && candidate.compareTo(maxWeight) <= 0) {
                 output.put(value.securityId(), candidate);
                 return;
             }

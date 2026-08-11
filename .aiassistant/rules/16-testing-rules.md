@@ -1,31 +1,8 @@
 # Testing Rules
 
-- New or changed business behavior requires tests for the happy path, validation/negative paths, and relevant external failures.
-- Prefer focused unit tests for facades and services, MVC slice tests for controllers, and integration tests for S3/Kafka/configuration boundaries.
-- Do not mock every collaborator by default; use realistic DTOs and test the boundary that matters.
-- Test idempotency, duplicate hot-folder artifacts, retry behavior, and batch/background routing when those paths change.
-- Use JUnit 5, Mockito, Spring Boot Test, and AssertJ in the repository's existing style. Do not claim coverage targets without measuring them.
-- Test contracts and APIM-visible response/error shapes when an API changes.
-
-✅ Good
-
-```java
-@Test
-void shouldRoutePrintRequestToExistingS3Document() {
-    when(s3Facade.createPresignedUrl(existingKey)).thenReturn(url);
-
-    facade.process(printRequest);
-
-    verify(kafkaFacade).send(argThat(event -> url.equals(event.documentUrl())));
-    verify(pdfFacade, never()).createPdf(any());
-}
-```
-
-❌ Bad
-
-```java
-@Test
-void test() {
-}
-```
-
+- Every changed business rule needs focused tests for normal, boundary, invalid, and deterministic behavior.
+- Prefer unit tests for domain rules/services, CSV readers, validation, ranking, selection, weights, capping, and audit creation.
+- Use Spring Boot/H2 integration tests for imports, persistence mappings, orchestration, and API contracts.
+- Cover duplicate/conflicting CSV rows, missing market data, validation, joiner/leaver decisions, buffers, rounding residuals, impossible caps, and tie-breakers when relevant.
+- Assert selected count, positive selected FFMCAP, exact output-scale weight sum, cap compliance, complete explanations, and stable ordering.
+- Run `./mvnw.cmd -s .mvn/settings-central.xml test` for repository-level verification.

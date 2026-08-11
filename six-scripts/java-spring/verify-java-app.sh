@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Verify a Spring Boot/Maven application.
-# Run from any directory with: bash scripts/java-spring/verify-java-app.sh
+# Run from any directory with: bash six-scripts/java-spring/verify-java-app.sh
 
 set -euo pipefail
 

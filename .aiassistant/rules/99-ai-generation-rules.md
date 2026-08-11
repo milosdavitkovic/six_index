@@ -1,31 +1,11 @@
 # AI Code Generation Rules
 
-When generating or modifying code:
+Before changing code, inspect the nearest controller/service/rule, its configuration, tests, and the relevant `docs/` file. Make the smallest change that fits the existing design.
 
-- Follow the nearest existing implementation and package convention before introducing abstractions or frameworks.
-- Keep the MVC `occ` → `facade` → `core` flow; use constructor injection and existing custom stereotypes.
-- Use Java 21 and Spring Boot 3-compatible code. Do not introduce reactive patterns into the established MVC path.
-- Use DTOs and validation at API boundaries; use `ProblemDetail` or the existing centralized error contract.
-- Preserve HTA+ backward compatibility, flow routing, hot-folder processing, batch chunking, APIM assets, and stage-driven configuration.
-- Use AWS SDK v2 through existing S3 services and producer-only Kafka abstractions.
-- Add focused tests for changed business behavior and external failure paths.
-- Use parameterized, safe logging with correlation context; never log secrets, tokens, full documents, HTML, base64 data, or unnecessary personal data.
-- Consider security, idempotency, observability, resource pressure, retry behavior, and rollback before finalizing code.
-- Do not invent JPA repositories, WebFlux handlers, metrics endpoints, authorization schemes, or dependencies as universal requirements; verify the repository and deployment first.
-- Do not hardcode secrets, URLs, buckets, topics, credentials, environment names, or account-specific values.
-- Report assumptions, exact files changed, validation performed, and any contract or deployment impact.
-
-✅ Good
-
-```text
-Before changing PDF delivery, inspect the existing facade, PDF service, S3 abstraction,
-Kafka mapping, properties, and hot-folder utility; then make the smallest compatible change.
-```
-
-❌ Bad
-
-```text
-Create a new reactive controller, JPA repository, and direct S3 client because they are
-common Spring Boot patterns.
-```
-
+- Use Java 21, Spring Boot 3, constructor injection, records/value objects, and existing Lombok conventions.
+- Preserve `api` -> `application` -> `domain` -> `infrastructure`/`reporting` boundaries and keep domain rules repository-free.
+- Preserve configured index definitions, ordered rule execution, deterministic comparators, audit events, precision policy, and weight invariants.
+- Use DTO validation and `GlobalExceptionHandler`; do not expose entities, stack traces, or raw uploaded data.
+- Add focused tests for changed behavior, including invalid input and invariant/failure paths.
+- Do not invent messaging, object storage, reactive handlers, metrics, deployment systems, credentials, or index methodology values.
+- Report assumptions, files changed, tests run, and API/configuration or business-rule impact.

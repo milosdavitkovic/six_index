@@ -1,35 +1,8 @@
 # Error Handling Rules
 
-- Use meaningful application or integration exceptions and preserve the original cause.
-- Centralize HTTP translation with `@RestControllerAdvice` (or the repository's existing equivalent).
-- Return stable error codes/messages suitable for callers; hide stack traces, credentials, URLs, and implementation details.
-- Never catch `Exception` merely to continue or return `null`. Catch only when translating, compensating, or applying an established retry policy.
-- Treat S3, Kafka, PDF conversion, and hot-folder failures as observable failures. Do not silently swallow them.
-- Distinguish validation, unsupported flow, external-system, and unexpected failures.
-
-✅ Good
-
-```java
-@RestControllerAdvice
-class ApiExceptionHandler {
-    @ExceptionHandler(DocumentProcessingException.class)
-    ProblemDetail handle(DocumentProcessingException ex) {
-        var problem = ProblemDetail.forStatus(HttpStatus.BAD_GATEWAY);
-        problem.setTitle("Document processing failed");
-        problem.setProperty("code", "DOCSTORE_EXTERNAL_FAILURE");
-        return problem;
-    }
-}
-```
-
-❌ Bad
-
-```java
-try {
-    facade.process(request);
-} catch (Exception ex) {
-    log.error("failed", ex);
-    return null;
-}
-```
-
+- Use the existing `DataImportException`, `ReviewValidationException`, `ReviewExecutionException`, and `ResourceNotFoundException` categories where appropriate.
+- Translate exceptions centrally in `GlobalExceptionHandler` into stable error codes and HTTP statuses.
+- Preserve causes when wrapping failures. Never catch an exception merely to return `null` or continue with incomplete input.
+- Distinguish malformed CSV/import data, blocking structural validation, security-level rejection warnings, missing results, persistence failures, and unexpected failures.
+- Do not expose stack traces, SQL details, file contents, credentials, or internal implementation data in responses.
+- Rejected securities should remain explainable when a review can safely complete; structural failures should stop execution.

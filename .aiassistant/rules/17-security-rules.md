@@ -1,28 +1,8 @@
 # Security Rules
 
-- Treat HTA+, URL, HTML, file, and configuration input as untrusted. Validate size, format, allowed values, and business constraints.
-- Use `@Valid` DTOs and typed identifiers where the contract allows; validate ownership/authorization through the established APIM/security context.
-- Never hardcode credentials. Use the configured secret/Vault/cluster mechanism and IAM roles where available.
-- Use least privilege, encrypted transport, and encrypted S3 objects; preserve configured bucket/account separation.
-- Generate safe, collision-resistant hot-folder and S3 object names. Do not derive paths directly from user-controlled filenames.
-- Allow-list remote hosts before fetching HTML/URLs and prevent SSRF. Validate file content type and size, not only extensions.
-- Use parameterized queries if persistence is introduced; do not add JPA/repository assumptions to this service.
-- Do not log secrets, tokens, authorization headers, base64 documents, or unnecessary personal data. Sanitize error responses.
-- Review dependencies, container images, Helm values, and APIM/security configuration for vulnerabilities before release.
-
-✅ Good
-
-```java
-if (!allowedHosts.contains(uri.getHost()) || !"https".equals(uri.getScheme())) {
-    throw new ValidationException("HTML source is not allowed");
-}
-var objectKey = UUID.randomUUID() + ".pdf";
-```
-
-❌ Bad
-
-```java
-var html = restTemplate.getForObject(request.emailUrl(), String.class);
-s3Client.putObject(PutObjectRequest.builder().key(request.fileName()).build(), body);
-```
-
+- Treat uploaded CSV files, multipart names, path parameters, and configuration as untrusted input.
+- Enforce multipart limits and validate CSV headers, delimiters, dates, identifiers, numeric ranges, and business values before persistence or calculation.
+- Keep API DTO and validation boundaries explicit; never bind arbitrary request maps directly to JPA entities.
+- Use parameterized Spring Data/JPA operations and preserve repository constraints; do not build SQL from input.
+- Do not add credentials, secrets, passwords, or environment-specific values to source, configuration examples, logs, or docs.
+- Return sanitized errors and avoid logging uploaded content or sensitive data.
