@@ -314,3 +314,4 @@ dist
 
 # Custom
 data/**
+target/**
