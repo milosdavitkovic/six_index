@@ -42,8 +42,8 @@ jobs:
       - name: Verify code coverage report exists
         run: ls -la target/site/jacoco
 
-      - name: Check code formatting
-        run: ./mvnw -B spotless:check
+      - name: Check code style
+        run: ./mvnw -B checkstyle:check
 
       - name: Verify full build
         run: ./mvnw -B clean verify
