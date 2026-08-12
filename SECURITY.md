@@ -1,22 +1,21 @@
 # Security Policy
 
-## Supported versions
+## Supported Versions
 
-This project is an assignment/reference service. Security fixes are applied to
-the default branch and the latest published revision when practical.
+Use this section to tell people about which versions of your project are
+currently being supported with security updates.
 
-| Version | Supported |
-| --- | --- |
-| Latest revision | Yes |
-| Older revisions | No |
+| Version | Supported          |
+| ------- | ------------------ |
+| 5.1.x   | :white_check_mark: |
+| 5.0.x   | :x:                |
+| 4.0.x   | :white_check_mark: |
+| < 4.0   | :x:                |
 
-## Reporting a vulnerability
+## Reporting a Vulnerability
 
-Please do not disclose suspected vulnerabilities in a public issue. Report
-them privately to the repository owner through the contact channel configured
-for this repository, including a description, reproduction steps, impact, and
-any suggested mitigation.
+Use this section to tell people how to report a vulnerability.
 
-You should receive an acknowledgement within five business days. We will keep
-the reporter informed as the issue is triaged and coordinate disclosure after
-a fix or mitigation is available.
+Tell them where to go, how often they can expect to get an update on a
+reported vulnerability, what to expect if the vulnerability is accepted or
+declined, etc.
