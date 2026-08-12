@@ -3,7 +3,6 @@ package com.six.indexreview.application;
 import com.six.indexreview.domain.model.ReviewResult;
 import com.six.indexreview.domain.model.SelectedConstituent;
 import com.six.indexreview.domain.repository.ReviewResultRepositoryPort;
-import com.six.indexreview.infrastructure.persistence.mapper.ReviewResultMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -22,7 +21,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ReviewComparisonOrchestrator {
     private final ReviewResultRepositoryPort reviewResultRepository;
-    private final ReviewResultMapper reviewResultMapper;
 
     public ReviewComparisonReport compare(Long baselineReviewResultId, Long comparisonReviewResultId) {
         return build(load(baselineReviewResultId), load(comparisonReviewResultId));
@@ -30,7 +28,6 @@ public class ReviewComparisonOrchestrator {
 
     private ReviewResult load(Long id) {
         return reviewResultRepository.findReviewResultById(id)
-                .map(reviewResultMapper::toDomain)
                 .orElseThrow(() -> new IllegalArgumentException("Review result not found: " + id));
     }
 

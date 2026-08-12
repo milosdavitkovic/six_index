@@ -1,7 +1,9 @@
 package com.six.indexreview.infrastructure.persistence.repository;
 
 import com.six.indexreview.domain.repository.ReviewResultRepositoryPort;
+import com.six.indexreview.domain.model.ReviewResult;
 import com.six.indexreview.infrastructure.persistence.entity.ReviewResultEntity;
+import com.six.indexreview.infrastructure.persistence.mapper.ReviewResultMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -17,21 +19,23 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ReviewResultRepositoryAdapter implements ReviewResultRepositoryPort {
     private final ReviewResultRepository delegate;
+    private final ReviewResultMapper mapper;
 
     @Override
-    public ReviewResultEntity saveReviewResult(ReviewResultEntity entity) {
-        return delegate.save(entity);
+    public ReviewResult saveReviewResult(ReviewResult result) {
+        return mapper.toDomain(delegate.save(mapper.toEntity(result)));
     }
 
     @Override
-    public Optional<ReviewResultEntity> findReviewResultById(Long id) {
-        return delegate.findById(id);
+    public Optional<ReviewResult> findReviewResultById(Long id) {
+        return delegate.findById(id).map(mapper::toDomain);
     }
 
     @Override
-    public Optional<ReviewResultEntity> findTopByIndexCodeIgnoreCaseAndReviewPeriodIgnoreCaseOrderByCreatedAtDescIdDesc(String indexCode,
+    public Optional<ReviewResult> findTopByIndexCodeIgnoreCaseAndReviewPeriodIgnoreCaseOrderByCreatedAtDescIdDesc(String indexCode,
                                                                                                                       String reviewPeriod) {
-        return delegate.findTopByIndexCodeIgnoreCaseAndReviewPeriodIgnoreCaseOrderByCreatedAtDescIdDesc(indexCode, reviewPeriod);
+        return delegate.findTopByIndexCodeIgnoreCaseAndReviewPeriodIgnoreCaseOrderByCreatedAtDescIdDesc(indexCode, reviewPeriod)
+                .map(mapper::toDomain);
     }
 }
 

@@ -1,6 +1,6 @@
 package com.six.indexreview.domain.repository;
 
-import com.six.indexreview.infrastructure.persistence.entity.ReviewResultEntity;
+import com.six.indexreview.domain.model.ReviewResult;
 
 import java.util.Optional;
 
@@ -11,11 +11,11 @@ import java.util.Optional;
  * impacting methodology logic.
  */
 public interface ReviewResultRepositoryPort {
-    ReviewResultEntity saveReviewResult(ReviewResultEntity entity);
+    ReviewResult saveReviewResult(ReviewResult result);
 
-    Optional<ReviewResultEntity> findReviewResultById(Long id);
+    Optional<ReviewResult> findReviewResultById(Long id);
 
-    Optional<ReviewResultEntity> findTopByIndexCodeIgnoreCaseAndReviewPeriodIgnoreCaseOrderByCreatedAtDescIdDesc(String indexCode,
+    Optional<ReviewResult> findTopByIndexCodeIgnoreCaseAndReviewPeriodIgnoreCaseOrderByCreatedAtDescIdDesc(String indexCode,
                                                                                                                String reviewPeriod);
 }
 

@@ -49,18 +49,7 @@ class IndexReviewServiceTest {
     }
 
     @Test
-    void latestUsesTheCallerProvidedReviewPeriodWithoutCanonicalizingIt() {
-        ReviewResultEntity entity = ReviewResultEntity.builder()
-                .id(7L)
-                .indexCode("SMI")
-                .reviewPeriod("Q3-2026")
-                .cutOffDate(LocalDate.of(2026, Month.SEPTEMBER, 10))
-                .reviewDate(LocalDate.of(2026, Month.SEPTEMBER, 21))
-                .status("COMPLETED")
-                .createdAt(Instant.parse("2026-08-11T00:00:00Z"))
-                .totalEligible(204)
-                .totalSelected(20)
-                .build();
+    void latestCanonicalizesTheCallerProvidedReviewPeriod() {
         ReviewResult domain = new ReviewResult(7L, new IndexCode("SMI"), "Q3-2026",
                 LocalDate.of(2026, Month.SEPTEMBER, 10), LocalDate.of(2026, Month.SEPTEMBER, 21), ReviewStatus.COMPLETED,
                 Instant.parse("2026-08-11T00:00:00Z"), 204, 20, Set.of(), List.of(), List.of(), List.of(), List.of(), Map.of());
@@ -69,21 +58,20 @@ class IndexReviewServiceTest {
                 Instant.parse("2026-08-11T00:00:00Z"), 204, 20,
                 List.of(), List.of(), List.of(), List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
 
-        when(reviewResultRepository.findTopByIndexCodeIgnoreCaseAndReviewPeriodIgnoreCaseOrderByCreatedAtDescIdDesc("SMI", "q3-2026"))
-                .thenReturn(java.util.Optional.of(entity));
-        when(reviewResultMapper.toDomain(entity)).thenReturn(domain);
+        when(reviewResultRepository.findTopByIndexCodeIgnoreCaseAndReviewPeriodIgnoreCaseOrderByCreatedAtDescIdDesc("SMI", "Q3-2026"))
+                .thenReturn(java.util.Optional.of(domain));
         when(reviewResultAssembler.toResponse(domain)).thenReturn(response);
 
         ReviewResponse latest = indexReviewService.latest("SMI", "q3-2026");
 
         assertThat(latest.reviewResultId()).isEqualTo(7L);
         assertThat(latest.reviewPeriod()).isEqualTo("Q3-2026");
-        verify(reviewResultRepository).findTopByIndexCodeIgnoreCaseAndReviewPeriodIgnoreCaseOrderByCreatedAtDescIdDesc("SMI", "q3-2026");
+        verify(reviewResultRepository).findTopByIndexCodeIgnoreCaseAndReviewPeriodIgnoreCaseOrderByCreatedAtDescIdDesc("SMI", "Q3-2026");
     }
 
     @Test
     void latestStillThrowsWhenNoMatchingResultExists() {
-        when(reviewResultRepository.findTopByIndexCodeIgnoreCaseAndReviewPeriodIgnoreCaseOrderByCreatedAtDescIdDesc("SMI", "q3-2026"))
+        when(reviewResultRepository.findTopByIndexCodeIgnoreCaseAndReviewPeriodIgnoreCaseOrderByCreatedAtDescIdDesc("SMI", "Q3-2026"))
                 .thenReturn(java.util.Optional.empty());
 
         assertThatThrownBy(() -> indexReviewService.latest("SMI", "q3-2026"))

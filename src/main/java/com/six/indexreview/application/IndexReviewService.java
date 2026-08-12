@@ -11,7 +11,6 @@ import com.six.indexreview.domain.model.ReviewResult;
 import com.six.indexreview.domain.service.PrecisionPolicy;
 import com.six.indexreview.infrastructure.config.IndexDefinitionProvider;
 import com.six.indexreview.infrastructure.persistence.ReviewDataLoader;
-import com.six.indexreview.infrastructure.persistence.entity.ReviewResultEntity;
 import com.six.indexreview.infrastructure.persistence.mapper.ReviewResultMapper;
 import com.six.indexreview.domain.repository.AuditRepositoryPort;
 import com.six.indexreview.domain.repository.ReviewResultRepositoryPort;
@@ -24,6 +23,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.Locale;
 
 /**
  * Orchestrates review execution, persistence, and response assembly.
@@ -64,10 +64,9 @@ public class IndexReviewService {
         reviewEngine.execute(context);
         // Persist the full result after all rules have completed so the stored
         // record reflects the exact review state that was audited.
-        ReviewResultEntity saved = reviewResultRepository.saveReviewResult(reviewResultMapper.toEntity(context));
-        ReviewResult result = reviewResultMapper.toDomain(saved);
+        ReviewResult result = reviewResultRepository.saveReviewResult(reviewResultMapper.toDomain(context));
         log.info("Index review completed reviewResultId={} eligible={} selected={} joiners={} leavers={}",
-                saved.getId(), result.totalEligibleSecurities(), result.totalSelectedConstituents(),
+                result.id(), result.totalEligibleSecurities(), result.totalSelectedConstituents(),
                 result.decisions().stream().filter(value -> value.decisionType().name().equals("JOINER")).count(),
                 result.decisions().stream().filter(value -> value.decisionType().name().equals("LEAVER")).count());
         return reviewResultAssembler.toResponse(result);
@@ -77,18 +76,22 @@ public class IndexReviewService {
     public ReviewResponse latest(String indexCode, String reviewPeriod) {
         Objects.requireNonNull(indexCode, "indexCode must not be null");
         Objects.requireNonNull(reviewPeriod, "reviewPeriod must not be null");
-        ReviewResultEntity entity = reviewResultRepository
-                .findTopByIndexCodeIgnoreCaseAndReviewPeriodIgnoreCaseOrderByCreatedAtDescIdDesc(indexCode, reviewPeriod)
+        ReviewResult result = reviewResultRepository
+                .findTopByIndexCodeIgnoreCaseAndReviewPeriodIgnoreCaseOrderByCreatedAtDescIdDesc(indexCode.trim(), canonicalPeriod(reviewPeriod))
                 .orElseThrow(() -> new ResourceNotFoundException("No review result found for " + indexCode + "/" + reviewPeriod));
-        return reviewResultAssembler.toResponse(reviewResultMapper.toDomain(entity));
+        return reviewResultAssembler.toResponse(result);
+    }
+
+    private String canonicalPeriod(String reviewPeriod) {
+        return reviewPeriod.trim().toUpperCase(Locale.ROOT);
     }
 
     @Transactional(readOnly = true)
     public ReviewResponse byId(Long id) {
         Objects.requireNonNull(id, "id must not be null");
-        ReviewResultEntity entity = reviewResultRepository.findReviewResultById(id)
+        ReviewResult result = reviewResultRepository.findReviewResultById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Review result not found: " + id));
-        return reviewResultAssembler.toResponse(reviewResultMapper.toDomain(entity));
+        return reviewResultAssembler.toResponse(result);
     }
 
     @Transactional(readOnly = true)

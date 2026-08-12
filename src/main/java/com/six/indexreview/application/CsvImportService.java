@@ -141,10 +141,12 @@ public class CsvImportService {
         if (unique.isEmpty()) {
             throw new DataImportException("Composition is empty");
         }
-        indexCompositionRepository.deleteByIndexCodeAndReviewPeriod(indexCode.toUpperCase(), reviewPeriod);
+        String canonicalIndexCode = indexCode.trim().toUpperCase(Locale.ROOT);
+        String canonicalReviewPeriod = reviewPeriod.trim().toUpperCase(Locale.ROOT);
+        indexCompositionRepository.deleteByIndexCodeAndReviewPeriod(canonicalIndexCode, canonicalReviewPeriod);
         indexCompositionRepository.flush();
         List<IndexCompositionEntity> entities = unique.stream()
-                .map(id -> new IndexCompositionEntity(indexCode.toUpperCase(), reviewPeriod, id.value()))
+                .map(id -> new IndexCompositionEntity(canonicalIndexCode, canonicalReviewPeriod, id.value()))
                 .toList();
         indexCompositionRepository.saveAll(entities);
         saveSecurities(new ArrayList<>(unique));

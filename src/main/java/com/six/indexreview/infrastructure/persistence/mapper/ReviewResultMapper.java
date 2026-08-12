@@ -6,6 +6,7 @@ import com.six.indexreview.infrastructure.persistence.entity.AuditEventEntity;
 import com.six.indexreview.infrastructure.persistence.entity.ReviewDecisionEntity;
 import com.six.indexreview.infrastructure.persistence.entity.ReviewResultConstituentEntity;
 import com.six.indexreview.infrastructure.persistence.entity.ReviewResultEntity;
+import com.six.indexreview.validation.ValidationError;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -22,29 +23,51 @@ public class ReviewResultMapper {
     public ReviewResultEntity toEntity(IndexReviewContext context) {
         ReviewStatus status = context.validationWarnings().isEmpty()
                 ? ReviewStatus.COMPLETED : ReviewStatus.COMPLETED_WITH_WARNINGS;
+        Map<SecurityId, String> warnings = new LinkedHashMap<>();
+        for (ValidationError warning : context.validationWarnings()) {
+            if (warning.securityId() != null) {
+                warnings.put(warning.securityId(), warning.message());
+            }
+        }
+        ReviewResult result = new ReviewResult(null, context.definition().indexCode(), context.definition().reviewPeriod(),
+                context.definition().reviewDates().cutOffDate(), context.definition().reviewDates().reviewDate(), status,
+                context.executionTimestamp(), context.eligibleSecurities().size(), context.selectedConstituents().size(),
+                context.currentComposition(), context.selectedConstituents(), context.decisions(), context.rejectedSecurities(),
+                context.auditEvents(), warnings);
+        return toEntity(result);
+    }
+
+    public ReviewResultEntity toEntity(ReviewResult result) {
         ReviewResultEntity entity = ReviewResultEntity.builder()
-                .indexCode(context.definition().indexCode().value()).reviewPeriod(context.definition().reviewPeriod())
-                .cutOffDate(context.definition().reviewDates().cutOffDate()).reviewDate(context.definition().reviewDates().reviewDate())
-                .status(status.name()).createdAt(context.executionTimestamp())
-                .totalEligible(context.eligibleSecurities().size()).totalSelected(context.selectedConstituents().size()).build();
-        for (SelectedConstituent constituent : context.selectedConstituents()) {
+                .id(result.id()).indexCode(result.indexCode().value()).reviewPeriod(result.reviewPeriod())
+                .cutOffDate(result.cutOffDate()).reviewDate(result.reviewDate()).status(result.status().name())
+                .createdAt(result.createdAt()).totalEligible(result.totalEligibleSecurities())
+                .totalSelected(result.totalSelectedConstituents()).build();
+        for (SelectedConstituent constituent : result.constituents()) {
             entity.addConstituent(ReviewResultConstituentEntity.builder()
                     .securityId(constituent.securityId().value()).rank(constituent.rank()).ffmcap(constituent.ffmcap())
                     .rawWeight(constituent.rawWeight()).finalWeight(constituent.finalWeight())
                     .cappingFactor(constituent.cappingFactor()).decisionType(constituent.decisionType().name())
                     .decisionReason(constituent.decisionReason()).capped(constituent.capped()).build());
         }
-        for (ReviewDecision decision : context.decisions()) {
+        for (ReviewDecision decision : result.decisions()) {
             entity.addDecision(new ReviewDecisionEntity(decision.securityId().value(), decision.decisionType().name(), decision.reason()));
         }
         int sequence = 1;
-        for (AuditEvent event : context.auditEvents()) {
+        for (AuditEvent event : result.auditEvents()) {
             Integer securityId = event.securityId() == null ? null : event.securityId().value();
             entity.addAuditEvent(new AuditEventEntity(sequence++, event.timestamp(), event.ruleCode(),
                     securityId, event.message(),
                     event.inputValue(), event.outputValue()));
         }
+        for (Map.Entry<SecurityId, String> warning : result.validationWarnings().entrySet()) {
+            entity.addValidationWarning(warning.getKey().value(), warning.getValue());
+        }
         return entity;
+    }
+
+    public ReviewResult toDomain(IndexReviewContext context) {
+        return toDomain(toEntity(context));
     }
 
     public ReviewResult toDomain(ReviewResultEntity entity) {
@@ -72,10 +95,14 @@ public class ReviewResultMapper {
                         value.getSecurityId() == null ? null : new SecurityId(value.getSecurityId()), value.getMessage(),
                         value.getInputValue(), value.getOutputValue()))
                 .toList();
+        Map<SecurityId, String> validationWarnings = new LinkedHashMap<>();
+        entity.getValidationWarnings().entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .forEach(value -> validationWarnings.put(new SecurityId(value.getKey()), value.getValue()));
         return new ReviewResult(entity.getId(), new IndexCode(entity.getIndexCode()), entity.getReviewPeriod(),
                 entity.getCutOffDate(), entity.getReviewDate(), ReviewStatus.valueOf(entity.getStatus()),
                 entity.getCreatedAt(), entity.getTotalEligible(), entity.getTotalSelected(), current,
-                constituents, decisions, rejected, auditEvents, Map.of());
+                constituents, decisions, rejected, auditEvents, validationWarnings);
     }
 
     private boolean findCurrent(ReviewResultEntity entity, Integer securityId) {
