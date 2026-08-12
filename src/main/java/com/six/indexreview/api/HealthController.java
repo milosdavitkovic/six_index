@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Milos Davitkovic
  */
 @RestController
-@RequestMapping("/api/health")
+@RequestMapping({"/api/health", "/api/v1/health"})
 public class HealthController {
     @GetMapping
     public HealthResponse health() {

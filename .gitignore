@@ -36,6 +36,9 @@ buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
 
+# Ignore project-local Maven settings that may contain credentials
+.mvn/settings-central.xml
+
 # Gradle
 .gradle
 build/

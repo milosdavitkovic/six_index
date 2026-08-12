@@ -21,7 +21,7 @@ import java.util.List;
  * @author Milos Davitkovic
  */
 @RestController
-@RequestMapping("/api/index-reviews")
+@RequestMapping({"/api/index-reviews", "/api/v1/index-reviews"})
 @RequiredArgsConstructor
 @Validated
 public class IndexReviewController {

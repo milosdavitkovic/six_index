@@ -11,5 +11,5 @@ import java.util.List;
  * @author Milos Davitkovic
  */
 public record ErrorResponse(Instant timestamp, int status, String errorCode, String message,
-                            String details, List<ValidationErrorResponse> validationErrors) {
+                            String details, String traceId, List<ValidationErrorResponse> validationErrors) {
 }

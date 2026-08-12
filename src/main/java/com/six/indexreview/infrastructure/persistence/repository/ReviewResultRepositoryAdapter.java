@@ -2,7 +2,6 @@ package com.six.indexreview.infrastructure.persistence.repository;
 
 import com.six.indexreview.domain.repository.ReviewResultRepositoryPort;
 import com.six.indexreview.domain.model.ReviewResult;
-import com.six.indexreview.infrastructure.persistence.entity.ReviewResultEntity;
 import com.six.indexreview.infrastructure.persistence.mapper.ReviewResultMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

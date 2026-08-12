@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @author Milos Davitkovic
  */
 @RestController
-@RequestMapping("/api/import")
+@RequestMapping({"/api/import", "/api/v1/import"})
 @RequiredArgsConstructor
 public class CsvImportController {
     private final CsvImportService csvImportService;
