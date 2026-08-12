@@ -14,6 +14,9 @@ import java.util.List;
  * Repository abstraction allows audit and review history persistence without
  * impacting methodology logic.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Component
 @RequiredArgsConstructor
 public class AuditRepositoryAdapter implements AuditRepositoryPort {

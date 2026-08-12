@@ -16,6 +16,9 @@ import java.util.List;
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Slf4j
 @Component
 public class DefaultAuditReportRule implements AuditReportRule {

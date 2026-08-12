@@ -17,6 +17,9 @@ import java.util.stream.Collectors;
 /**
  * Builds review comparison reports.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Component
 @RequiredArgsConstructor
 public class ReviewComparisonOrchestrator {

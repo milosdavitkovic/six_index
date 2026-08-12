@@ -5,6 +5,7 @@ package com.six.indexreview.domain.model;
  *
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
+ * @author Milos Davitkovic
  */
 public record RejectedSecurity(SecurityId securityId, String reason) {
 }

@@ -16,6 +16,9 @@ import java.util.*;
  * strategy allows future methodologies to retain members without changing the
  * engine or persistence model.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Slf4j
 @Component("configurableBufferRule")
 public class ConfigurableBufferRule implements BufferRule {

@@ -8,6 +8,7 @@ import java.util.Objects;
  *
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
+ * @author Milos Davitkovic
  */
 public record SecurityId(int value) implements Comparable<SecurityId>, Serializable {
 

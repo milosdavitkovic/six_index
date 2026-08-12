@@ -16,6 +16,9 @@ import java.util.Set;
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor

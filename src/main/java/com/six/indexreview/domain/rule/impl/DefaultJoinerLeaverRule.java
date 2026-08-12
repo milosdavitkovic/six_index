@@ -12,6 +12,9 @@ import java.util.*;
  * is separated from ranking and capping so the decision trail can be audited
  * independently and future methodology variants can swap only this
  * classification strategy. */
+/**
+ * @author Milos Davitkovic
+ */
 @Slf4j
 @Component
 public class DefaultJoinerLeaverRule implements JoinerLeaverRule {

@@ -16,6 +16,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @SpringBootApplication(scanBasePackages = "com.six.indexreview")
 @ConfigurationPropertiesScan("com.six.indexreview")
 @EntityScan("com.six.indexreview.infrastructure.persistence.entity")

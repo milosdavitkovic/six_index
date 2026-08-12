@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @RestController
 @RequestMapping("/api/health")
 public class HealthController {

@@ -24,6 +24,9 @@ import java.util.Objects;
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Component
 @RequiredArgsConstructor
 public class ReviewDataLoader {

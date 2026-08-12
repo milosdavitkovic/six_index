@@ -11,6 +11,9 @@ import java.time.LocalDate;
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Getter
 @Entity
 @Table(name = "spi_universe_member", uniqueConstraints = @UniqueConstraint(name = "uk_spi_universe_security_date", columnNames = {"security_id", "universe_date"}))

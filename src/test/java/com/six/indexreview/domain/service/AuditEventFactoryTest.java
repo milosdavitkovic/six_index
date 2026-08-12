@@ -9,6 +9,9 @@ import java.time.ZoneOffset;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * @author Milos Davitkovic
+ */
 class AuditEventFactoryTest {
     @Test
     void createsStableTimestampedAuditEvent() {

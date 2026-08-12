@@ -14,6 +14,9 @@ import java.util.List;
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Component
 public class WeightCalculator implements WeightingStrategy {
     private final PrecisionPolicy precisionPolicy;

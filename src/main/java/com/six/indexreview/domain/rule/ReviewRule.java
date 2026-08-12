@@ -7,6 +7,7 @@ import com.six.indexreview.domain.engine.IndexReviewContext;
  *
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
+ * @author Milos Davitkovic
  */
 public interface ReviewRule {
     String code();

@@ -13,6 +13,9 @@ import org.springframework.stereotype.Component;
  * Selection is intentionally separate from ranking so alternative index
  * families can reuse the same ranking logic with different thresholds.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor

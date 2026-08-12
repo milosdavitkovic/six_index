@@ -11,19 +11,20 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
- * Core IndexReviewEngine component for the SIX index review workflow.
- *
- * Kept intentionally concise so the business meaning remains visible
- * without obscuring the implementation.
- */
-@Slf4j
-@Component
-/**
  * Executes the ordered SIX index review rule pipeline.
+ *
+ * Core IndexReviewEngine component for the SIX index review workflow. Kept
+ * intentionally concise so the business meaning remains visible without
+ * obscuring the implementation.
  *
  * The engine stays orchestration-only so individual methodology changes can be
  * introduced through rule replacement rather than workflow redesign.
  */
+/**
+ * @author Milos Davitkovic
+ */
+@Slf4j
+@Component
 public class IndexReviewEngine {
     private final DefaultDataValidationRule validationRule;
     private final SpiUniverseEligibilityRule eligibilityRule;

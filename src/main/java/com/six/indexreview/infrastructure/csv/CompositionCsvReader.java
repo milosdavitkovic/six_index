@@ -18,6 +18,9 @@ import java.util.Set;
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Component
 public class CompositionCsvReader {
     public List<CompositionRow> read(InputStream inputStream, String fileName) {

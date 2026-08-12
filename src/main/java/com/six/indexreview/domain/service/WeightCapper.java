@@ -10,6 +10,7 @@ import java.util.List;
  *
  * Implementations can introduce alternative capping or redistribution rules
  * without modifying the review pipeline.
+ * @author Milos Davitkovic
  */
 public interface WeightCapper {
     /**

@@ -12,6 +12,9 @@ import java.time.Clock;
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Configuration
 public class IndexReviewConfiguration {
 

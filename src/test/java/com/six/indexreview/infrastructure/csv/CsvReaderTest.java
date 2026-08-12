@@ -8,6 +8,9 @@ import java.nio.charset.StandardCharsets;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+/**
+ * @author Milos Davitkovic
+ */
 class CsvReaderTest {
     @Test
     void readsSemicolonDataWithUtf8BomAndEmptyPrice() {

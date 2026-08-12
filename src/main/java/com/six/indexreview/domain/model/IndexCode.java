@@ -8,6 +8,7 @@ import java.util.Locale;
  *
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
+ * @author Milos Davitkovic
  */
 public record IndexCode(String value) implements Serializable {
 

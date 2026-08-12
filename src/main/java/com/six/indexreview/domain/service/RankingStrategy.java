@@ -10,6 +10,7 @@ import java.util.List;
  *
  * Alternative methodologies can be implemented by providing new strategy
  * implementations without modifying workflow services.
+ * @author Milos Davitkovic
  */
 public interface RankingStrategy {
     List<RankedSecurity> rank(List<EligibleSecurity> securities, List<String> tieBreakers);

@@ -9,6 +9,9 @@ import java.util.Comparator;
 /** Builds the review report DTO from the persisted review result. The
  * generator isolates reporting concerns so future export formats or SMIM
  * fields can be added with minimal impact on the review engine. */
+/**
+ * @author Milos Davitkovic
+ */
 @Component
 public class ReviewReportGenerator {
     public ReviewReport generate(ReviewResult result) {

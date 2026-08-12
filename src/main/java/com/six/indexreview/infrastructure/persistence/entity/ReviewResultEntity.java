@@ -17,6 +17,9 @@ import java.util.Map;
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Getter
 @Builder
 @Entity

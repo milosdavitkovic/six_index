@@ -15,6 +15,9 @@ import java.util.LinkedHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+/**
+ * @author Milos Davitkovic
+ */
 class CoverageBasicsTest {
     @Test
     void valueObjectsExposeTheirComponentsAndPreserveDeterministicBehavior() {

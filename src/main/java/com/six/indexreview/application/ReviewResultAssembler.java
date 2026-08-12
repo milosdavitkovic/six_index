@@ -12,6 +12,9 @@ import org.springframework.stereotype.Component;
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Component
 @RequiredArgsConstructor
 public class ReviewResultAssembler {

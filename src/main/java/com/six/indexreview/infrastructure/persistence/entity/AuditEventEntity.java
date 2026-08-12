@@ -11,6 +11,9 @@ import java.time.Instant;
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Getter
 @Entity
 @Table(name = "audit_event", indexes = @Index(name = "ix_audit_event_result_security", columnList = "review_result_id,security_id"))
