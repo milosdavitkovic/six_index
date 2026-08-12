@@ -6,7 +6,7 @@ Deterministic Spring Boot service for SIX index reviews. The application imports
 
 - Repository branch for this setup: `feature/initial_setup`
 - This project is Maven-based and includes the Maven Wrapper (`mvnw` / `mvnw.cmd`)
-- The application uses Java 21, Spring Boot 3.4.3, and an in-memory H2 database by default
+- The application uses Java 21, Spring Boot 4.1.0, and an in-memory H2 database by default
 - No real secrets are required
 - No external database, Kafka broker, or Docker stack is required for the default local run
 
