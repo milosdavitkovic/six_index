@@ -17,7 +17,8 @@ import java.util.regex.Pattern;
 public class TraceIdFilter extends OncePerRequestFilter {
     /** Header used for request correlation. */
     public static final String TRACE_ID_HEADER = "X-Trace-Id";
-    private static final Pattern UUID_PATTERN = Pattern.compile("[0-9a-fA-F-]{1,64}");
+    private static final Pattern UUID_PATTERN = Pattern.compile(
+            "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
