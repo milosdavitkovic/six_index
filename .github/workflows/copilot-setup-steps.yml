@@ -24,7 +24,7 @@ jobs:
       - name: Verify Java installation
         run: java -version
 
-      - name: Download Maven dependencies
+      - name: Download dependencies
         run: ./mvnw -B dependency:go-offline
 
       - name: Compile project
@@ -33,5 +33,17 @@ jobs:
       - name: Run unit tests
         run: ./mvnw -B test
 
-      - name: Verify code formatting
+      - name: Run integration tests
+        run: ./mvnw -B verify -DskipUnitTests=false
+
+      - name: Generate code coverage
+        run: ./mvnw -B jacoco:report
+
+      - name: Verify code coverage report exists
+        run: ls -la target/site/jacoco
+
+      - name: Check code formatting
         run: ./mvnw -B spotless:check
+
+      - name: Verify full build
+        run: ./mvnw -B clean verify
