@@ -1,0 +1,49 @@
+name: "Copilot Setup Steps"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Verify Java installation
+        run: java -version
+
+      - name: Download dependencies
+        run: ./mvnw -B dependency:go-offline
+
+      - name: Compile project
+        run: ./mvnw -B clean compile -DskipTests
+
+      - name: Run unit tests
+        run: ./mvnw -B test
+
+      - name: Run integration tests
+        run: ./mvnw -B verify -DskipUnitTests=false
+
+      - name: Generate code coverage
+        run: ./mvnw -B jacoco:report
+
+      - name: Verify code coverage report exists
+        run: ls -la target/site/jacoco
+
+      - name: Check code formatting
+        run: ./mvnw -B spotless:check
+
+      - name: Verify full build
+        run: ./mvnw -B clean verify
