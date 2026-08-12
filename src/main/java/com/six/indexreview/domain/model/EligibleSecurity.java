@@ -1,0 +1,18 @@
+package com.six.indexreview.domain.model;
+
+import java.math.BigDecimal;
+
+/**
+ * Immutable data carrier for EligibleSecurity.
+ *
+ * Kept intentionally concise so the business meaning remains visible
+ * without obscuring the implementation.
+ */
+public record EligibleSecurity(
+        SecurityId securityId,
+        BigDecimal price,
+        BigDecimal shares,
+        BigDecimal freeFloat,
+        BigDecimal ffmcap,
+        boolean currentConstituent) {
+}

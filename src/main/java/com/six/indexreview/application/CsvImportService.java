@@ -1,0 +1,217 @@
+package com.six.indexreview.application;
+
+import com.six.indexreview.application.exception.DataImportException;
+import com.six.indexreview.domain.model.SecurityId;
+import com.six.indexreview.infrastructure.config.IndexDefinitionProvider;
+import com.six.indexreview.infrastructure.csv.*;
+import com.six.indexreview.infrastructure.persistence.entity.IndexCompositionEntity;
+import com.six.indexreview.infrastructure.persistence.entity.MarketDataEntity;
+import com.six.indexreview.infrastructure.persistence.entity.SecurityEntity;
+import com.six.indexreview.infrastructure.persistence.entity.SpiUniverseMemberEntity;
+import com.six.indexreview.infrastructure.persistence.repository.IndexCompositionRepository;
+import com.six.indexreview.infrastructure.persistence.repository.MarketDataRepository;
+import com.six.indexreview.infrastructure.persistence.repository.SecurityRepository;
+import com.six.indexreview.infrastructure.persistence.repository.SpiUniverseRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.Objects;
+
+/**
+ * Imports the reference CSV snapshots used by the review engine.
+ *
+ * Validation happens before review execution so invalid market data cannot
+ * influence constituent selection or audit output.
+ */
+@Slf4j
+@Service
+public class CsvImportService {
+    private final SpiUniverseCsvReader spiUniverseCsvReader;
+    private final SecurityDataCsvReader securityDataCsvReader;
+    private final CompositionCsvReader compositionCsvReader;
+    private final SecurityRepository securityRepository;
+    private final SpiUniverseRepository spiUniverseRepository;
+    private final MarketDataRepository marketDataRepository;
+    private final IndexCompositionRepository indexCompositionRepository;
+    private final IndexDefinitionProvider indexDefinitionProvider;
+    @Lazy
+    private final CsvImportService self;
+
+    public CsvImportService(SpiUniverseCsvReader spiUniverseCsvReader,
+                            SecurityDataCsvReader securityDataCsvReader,
+                            CompositionCsvReader compositionCsvReader,
+                            SecurityRepository securityRepository,
+                            SpiUniverseRepository spiUniverseRepository,
+                            MarketDataRepository marketDataRepository,
+                            IndexCompositionRepository indexCompositionRepository,
+                            IndexDefinitionProvider indexDefinitionProvider,
+                            @Lazy CsvImportService self) {
+        this.spiUniverseCsvReader = spiUniverseCsvReader;
+        this.securityDataCsvReader = securityDataCsvReader;
+        this.compositionCsvReader = compositionCsvReader;
+        this.securityRepository = securityRepository;
+        this.spiUniverseRepository = spiUniverseRepository;
+        this.marketDataRepository = marketDataRepository;
+        this.indexCompositionRepository = indexCompositionRepository;
+        this.indexDefinitionProvider = indexDefinitionProvider;
+        this.self = self;
+    }
+
+    @Transactional
+    public ImportResult importSpiUniverse(MultipartFile file) {
+        List<SpiUniverseRow> rows = read(file, spiUniverseCsvReader::read);
+        Map<String, SpiUniverseRow> unique = new LinkedHashMap<>();
+        int duplicates = 0;
+        for (SpiUniverseRow row : rows) {
+            // Duplicate handling is deterministic: identical rows are tolerated,
+            // conflicting rows fail fast so the import stays trustworthy.
+            String key = row.securityId() + "|" + row.date();
+            if (unique.containsKey(key)) {
+                SpiUniverseRow existing = unique.get(key);
+                if (!Objects.equals(existing, row)) {
+                    throw new DataImportException("Conflicting duplicate SPI universe row for " + key);
+                }
+                duplicates++;
+            } else {
+                unique.put(key, row);
+            }
+        }
+        if (duplicates > 0) {
+            log.warn("Deduplicated {} identical SPI universe rows", duplicates);
+        }
+        spiUniverseRepository.deleteAllInBatch();
+        List<SpiUniverseMemberEntity> entities = unique.values().stream()
+                .map(row -> new SpiUniverseMemberEntity(row.securityId().value(), row.date()))
+                .toList();
+        spiUniverseRepository.saveAll(entities);
+        saveSecurities(unique.values().stream().map(SpiUniverseRow::securityId).toList());
+        log.info("Imported SPI universe rows={} uniqueRows={}", rows.size(), entities.size());
+        return new ImportResult("SPI_UNIVERSE", rows.size(), entities.size(), duplicates);
+    }
+
+    @Transactional
+    public ImportResult importSecurityData(MultipartFile file) {
+        List<SecurityDataRow> rows = read(file, securityDataCsvReader::read);
+        Map<String, SecurityDataRow> unique = new LinkedHashMap<>();
+        int duplicates = 0;
+        for (SecurityDataRow row : rows) {
+            // Market data drives FFMCAP and selection, so contradictory input
+            // must be rejected before it reaches the review engine.
+            String key = row.securityId() + "|" + row.date();
+            if (unique.containsKey(key)) {
+                SecurityDataRow existing = unique.get(key);
+                if (!sameMarketData(existing, row)) {
+                    throw new DataImportException("Conflicting duplicate market data row for " + key);
+                }
+                duplicates++;
+            } else {
+                unique.put(key, row);
+            }
+        }
+        if (duplicates > 0) {
+            log.warn("Deduplicated {} identical market data rows", duplicates);
+        }
+        marketDataRepository.deleteAllInBatch();
+        List<MarketDataEntity> entities = unique.values().stream()
+                .map(row -> new MarketDataEntity(row.securityId().value(), row.date(), row.price(),
+                        row.shares(), row.freeFloat()))
+                .toList();
+        marketDataRepository.saveAll(entities);
+        saveSecurities(unique.values().stream().map(SecurityDataRow::securityId).toList());
+        log.info("Imported market data rows={} uniqueRows={}", rows.size(), entities.size());
+        return new ImportResult("SECURITY_DATA", rows.size(), entities.size(), duplicates);
+    }
+
+    @Transactional
+    public ImportResult importComposition(MultipartFile file, String indexCode, String reviewPeriod) {
+        List<CompositionRow> rows = read(file, compositionCsvReader::read);
+        Set<SecurityId> unique = new LinkedHashSet<>();
+        for (CompositionRow row : rows) {
+            // Keep composition deduplication stable so the current member set
+            // can be reconstructed exactly during review replay.
+            if (!unique.add(row.securityId())) {
+                log.warn("Deduplicated duplicate composition securityId={}", row.securityId());
+            }
+        }
+        if (unique.isEmpty()) {
+            throw new DataImportException("Composition is empty");
+        }
+        String canonicalIndexCode = indexCode.trim().toUpperCase(Locale.ROOT);
+        String canonicalReviewPeriod = reviewPeriod.trim().toUpperCase(Locale.ROOT);
+        indexCompositionRepository.deleteByIndexCodeAndReviewPeriod(canonicalIndexCode, canonicalReviewPeriod);
+        indexCompositionRepository.flush();
+        List<IndexCompositionEntity> entities = unique.stream()
+                .map(id -> new IndexCompositionEntity(canonicalIndexCode, canonicalReviewPeriod, id.value()))
+                .toList();
+        indexCompositionRepository.saveAll(entities);
+        saveSecurities(new ArrayList<>(unique));
+        log.info("Imported composition indexCode={} reviewPeriod={} members={}", indexCode, reviewPeriod, entities.size());
+        return new ImportResult("COMPOSITION", rows.size(), entities.size(), rows.size() - entities.size());
+    }
+
+    @Transactional
+    public ImportResult importComposition(MultipartFile file) {
+        var definition = indexDefinitionProvider.defaultDefinition();
+        return self.importComposition(file, definition.indexCode().value(), definition.reviewPeriod());
+    }
+
+    @Transactional
+    public AllImportResult importAll(MultipartFile spiUniverse, MultipartFile securityData, MultipartFile composition) {
+        return new AllImportResult(self.importSpiUniverse(spiUniverse), self.importSecurityData(securityData),
+                self.importComposition(composition));
+    }
+
+    private void saveSecurities(List<SecurityId> ids) {
+        // Ensure referenced securities exist even when only the snapshot files
+        // are imported; this preserves referential integrity for later review runs.
+        List<Integer> requestedIds = ids.stream().map(SecurityId::value).distinct().toList();
+        Set<Integer> existing = new LinkedHashSet<>(securityRepository.findAllById(requestedIds)
+                .stream().map(SecurityEntity::getId).toList());
+        List<SecurityEntity> missing = requestedIds.stream()
+                .filter(id -> !existing.contains(id)).map(SecurityEntity::new).toList();
+        if (!missing.isEmpty()) {
+            securityRepository.saveAll(missing);
+        }
+    }
+
+    private boolean sameMarketData(SecurityDataRow left, SecurityDataRow right) {
+        // compareTo() ignores scale differences, which is appropriate for CSV
+        // import de-duplication where 10.0 and 10.00 should be equivalent.
+        return equalDecimal(left.price(), right.price()) && equalDecimal(left.shares(), right.shares())
+                && equalDecimal(left.freeFloat(), right.freeFloat());
+    }
+
+    private boolean equalDecimal(BigDecimal left, BigDecimal right) {
+        return left == null ? right == null : right != null && left.compareTo(right) == 0;
+    }
+
+    private <T> List<T> read(MultipartFile file, ReaderFunction<T> function) {
+        if (file == null || file.isEmpty()) {
+            throw new DataImportException("Uploaded file must not be empty");
+        }
+        try {
+            String originalFilename = file.getOriginalFilename();
+            return function.read(file.getInputStream(), originalFilename == null ? "upload" : originalFilename);
+        } catch (DataImportException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw new DataImportException("Could not import uploaded file", exception);
+        }
+    }
+
+    @FunctionalInterface
+    private interface ReaderFunction<T> {
+        List<T> read(java.io.InputStream inputStream, String fileName);
+    }
+
+    public record ImportResult(String dataset, int inputRows, int storedRows, int deduplicatedRows) {
+    }
+
+    public record AllImportResult(ImportResult spiUniverse, ImportResult securityData, ImportResult composition) {
+    }
+}
