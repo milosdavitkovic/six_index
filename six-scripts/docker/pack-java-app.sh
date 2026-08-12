@@ -135,7 +135,7 @@ check_tests() {
 
   count="$(grep -ho 'tests="[0-9]*"' "${files[@]}" | sed 's/[^0-9]//g' | awk '{s += $1} END {print s+0}')"
   TEST_COUNT="$count"
-  FAILED_TESTS="$(grep -rho 'failures="[1-9][0-9]*"\|errors="[1-9][0-9]*"' "${files[@]}" | wc -l | tr -d ' ')"
+  FAILED_TESTS="$(perl -ne 'while (/(?:failures|errors)="([0-9]+)"/g) { $n += $1 } END { print $n + 0 }' "${files[@]}")"
   (( count > 0 )) || { print_error 'No unit tests were executed'; return 1; }
   if (( FAILED_TESTS > 0 )); then
     print_error "$FAILED_TESTS test report(s) contain failures or errors"
