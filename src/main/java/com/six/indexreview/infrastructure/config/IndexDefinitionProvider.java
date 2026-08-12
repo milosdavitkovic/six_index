@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Core IndexDefinitionProvider component for the SIX index review workflow.
@@ -44,15 +45,27 @@ public class IndexDefinitionProvider {
         if (configuration.getReviewPeriod() == null || !configuration.getReviewPeriod().equalsIgnoreCase(reviewPeriod)) {
             throw new IllegalArgumentException("No configuration for review period " + reviewPeriod + " and index " + indexCode);
         }
+        String rankingRule = upper(configuration.getRankingRule());
+        String selectionRule = upper(configuration.getSelectionRule());
+        String bufferRule = upper(configuration.getBufferRule());
+        if (!"FFMCAP".equals(rankingRule)) {
+            throw new IllegalArgumentException("Unsupported ranking rule: " + configuration.getRankingRule());
+        }
+        if (!"TOP_N".equals(selectionRule) && !"TOP_N_WITH_BUFFER".equals(selectionRule)) {
+            throw new IllegalArgumentException("Unsupported selection rule: " + configuration.getSelectionRule());
+        }
+        if (!Set.of("NONE", "NOOP", "NO_OP", "CONFIGURABLE", "TOP_N_WITH_BUFFER").contains(bufferRule)) {
+            throw new IllegalArgumentException("Unsupported buffer rule: " + configuration.getBufferRule());
+        }
         IndexDefinition definition = new IndexDefinition(
                 new IndexCode(configuration.getIndexCode() == null ? indexCode : configuration.getIndexCode()),
                 configuration.getName(),
                 configuration.getConstituentCount(),
                 configuration.getMaxWeight(),
-                upper(configuration.getRankingRule()),
-                upper(configuration.getSelectionRule()),
-                upper(configuration.getBufferRule()),
-                configuration.getReviewPeriod(),
+                rankingRule,
+                selectionRule,
+                bufferRule,
+                configuration.getReviewPeriod().trim().toUpperCase(Locale.ROOT),
                 new ReviewDates(configuration.getCutOffDate(), configuration.getReviewDate()),
                 configuration.getTieBreakers(),
                 configuration.isEnabled(),

@@ -7,7 +7,9 @@ import lombok.Getter;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Core ReviewResultEntity component for the SIX index review workflow.
@@ -63,13 +65,22 @@ public class ReviewResultEntity {
     @Builder.Default
     private List<AuditEventEntity> auditEvents = new ArrayList<>();
 
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "review_result_validation_warning",
+            joinColumns = @JoinColumn(name = "review_result_id"))
+    @MapKeyColumn(name = "security_id")
+    @Column(name = "warning_message", nullable = false, length = 1024)
+    @Builder.Default
+    private Map<Integer, String> validationWarnings = new LinkedHashMap<>();
+
     protected ReviewResultEntity() {
     }
 
     private ReviewResultEntity(Long id, String indexCode, String reviewPeriod, LocalDate cutOffDate,
                                LocalDate reviewDate, String status, Instant createdAt, int totalEligible,
                                int totalSelected, List<ReviewResultConstituentEntity> constituents,
-                               List<ReviewDecisionEntity> decisions, List<AuditEventEntity> auditEvents) {
+                               List<ReviewDecisionEntity> decisions, List<AuditEventEntity> auditEvents,
+                               Map<Integer, String> validationWarnings) {
         this.id = id;
         this.indexCode = indexCode;
         this.reviewPeriod = reviewPeriod;
@@ -82,6 +93,7 @@ public class ReviewResultEntity {
         this.constituents = constituents;
         this.decisions = decisions;
         this.auditEvents = auditEvents;
+        this.validationWarnings = validationWarnings;
     }
 
     public void addConstituent(ReviewResultConstituentEntity constituent) {
@@ -97,5 +109,9 @@ public class ReviewResultEntity {
     public void addAuditEvent(AuditEventEntity event) {
         auditEvents.add(event);
         event.attachTo(this);
+    }
+
+    public void addValidationWarning(Integer securityId, String message) {
+        validationWarnings.put(securityId, message);
     }
 }

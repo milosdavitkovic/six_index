@@ -24,7 +24,7 @@ class ReviewComparisonServiceTest {
                 constituent(177, 12, "0.0400000000"),
                 constituent(200, 12, "0.0400000000"));
 
-        ReviewComparisonOrchestrator comparisonOrchestrator = new ReviewComparisonOrchestrator(null, null);
+        ReviewComparisonOrchestrator comparisonOrchestrator = new ReviewComparisonOrchestrator(null);
         ReviewComparisonReport report = comparisonOrchestrator.build(baseline, comparison);
 
         assertThat(report.joiners()).containsExactly(200);

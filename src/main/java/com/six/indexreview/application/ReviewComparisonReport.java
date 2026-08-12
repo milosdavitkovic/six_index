@@ -1,5 +1,7 @@
 package com.six.indexreview.application;
 
+import com.six.indexreview.domain.model.SecurityId;
+
 import java.util.List;
 import java.util.Map;
 
@@ -8,7 +10,7 @@ import java.util.Map;
  */
 public record ReviewComparisonReport(Long baselineReviewResultId, Long comparisonReviewResultId, String indexCode,
                                      String baselineReviewPeriod, String comparisonReviewPeriod,
-                                     Map<?, ?> baselineWarnings, Map<?, ?> comparisonWarnings,
+                                     Map<SecurityId, String> baselineWarnings, Map<SecurityId, String> comparisonWarnings,
                                      List<ReviewComparisonItem> items, String baselineStatus, String comparisonStatus,
                                      List<Integer> joiners, List<Integer> leavers,
                                      List<ReviewComparisonItem> rankMovements, List<ReviewComparisonItem> weightMovements) {

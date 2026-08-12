@@ -37,10 +37,11 @@ public class DefaultJoinerLeaverRule implements JoinerLeaverRule {
                 .toList());
 
         decisions.addAll(classifyLeavers(context, selectedIds, rankedById));
-        Set<SecurityId> decided = new HashSet<>(selectedIds);
-        decided.addAll(context.currentComposition());
         decisions.addAll(classifyNotSelected(context, selectedIds));
-        decisions.addAll(classifyRejected(context, decided));
+        // An ineligible incumbent has two distinct outcomes: it leaves the
+        // index and it is rejected at security level. Keep both decisions so
+        // persistence and reporting retain the rejection evidence.
+        decisions.addAll(classifyRejected(context, selectedIds));
 
         // Deterministic ordering keeps the decision feed stable for report
         // generation, audit lookup, and integration testing.
