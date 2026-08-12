@@ -10,13 +10,13 @@
 # 2) Build Docker image and run container locally without pushing to a registry:
 #
 #    IMAGE_TAG=six-index:local APP_PORT=8080 \
-#    HEALTH_PATH=/actuator/health INTEGRATION_PATH=/ \
+#    HEALTH_PATH=/actuator/health INTEGRATION_PATH=/api/health \
 #    bash six-scripts/docker/pack-java-app.sh
 #
 # 3) Build and push to a local registry (for example running on localhost:5000):
 #
 #    REGISTRY=localhost:5000 IMAGE_TAG=six-index:local APP_PORT=8080 \
-#    HEALTH_PATH=/actuator/health INTEGRATION_PATH=/ \
+#    HEALTH_PATH=/actuator/health INTEGRATION_PATH=/api/health \
 #    bash six-scripts/docker/pack-java-app.sh
 #
 # 4) Use a custom integration path and port (if your app exposes a different endpoint):
@@ -221,7 +221,7 @@ check_docker_available() {
 # REGISTRY (optional) -> if set, image will be tagged and pushed to this registry (e.g. localhost:5000)
 # APP_PORT (default: 8080)
 # HEALTH_PATH (default: /actuator/health)
-# INTEGRATION_PATH (default: /)
+# INTEGRATION_PATH (default: /api/health)
 build_docker_image() {
   local base_tag="${IMAGE_TAG:-six-index:local}"
   local registry="${REGISTRY:-}"
@@ -254,7 +254,7 @@ run_container_and_healthcheck() {
   local name="six-index-local-verify"
   local port="${APP_PORT:-8080}"
   local health_path="${HEALTH_PATH:-/actuator/health}"
-  local integration_path="${INTEGRATION_PATH:-/}"
+  local integration_path="${INTEGRATION_PATH:-/api/health}"
   # By default keep the container running so the developer can test with Postman
   # Set KEEP_CONTAINER=false to have the script remove the container after checks
   local inspect_mode="${INSPECT:-false}"
