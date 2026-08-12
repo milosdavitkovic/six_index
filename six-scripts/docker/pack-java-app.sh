@@ -117,7 +117,8 @@ run_maven_build() {
     extra_props+=" -Dpmd.skip=true -Dsite.skip=true"
     print_warn "SKIP_REPORTS=true -> skipping PMD and site generation (adds: $extra_props)"
   fi
-  if ${MAVEN[@]} -DskipTests=false -DfailIfNoTests=false $extra_props install 2>&1 | tee "$log_file"; then
+  # Quote the array expansion to preserve elements (wrapper path + args)
+  if "${MAVEN[@]}" -DskipTests=false -DfailIfNoTests=false $extra_props install 2>&1 | tee "$log_file"; then
     return 0
   fi
   FAILURE_REASON="Maven install failed; inspect $log_file"
@@ -230,19 +231,20 @@ build_docker_image() {
   else
     image_tag="$base_tag"
   fi
-  print_info "Building Docker image $image_tag"
-  if docker build -t "$image_tag" -f Dockerfile . | sed -u 's/^/[docker] /'; then
+  # Keep diagnostics off stdout: callers capture stdout to obtain the image tag.
+  print_info "Building Docker image $image_tag" >&2
+  if docker build -t "$image_tag" -f Dockerfile . | sed -u 's/^/[docker] /' >&2; then
     if [[ -n "${REGISTRY:-}" ]]; then
-      print_info "Pushing image $image_tag to registry ${REGISTRY}"
-      if ! docker push "$image_tag" | sed -u 's/^/[docker] /'; then
-        print_error "Failed to push image $image_tag to registry ${REGISTRY}"
+      print_info "Pushing image $image_tag to registry ${REGISTRY}" >&2
+      if ! docker push "$image_tag" | sed -u 's/^/[docker] /' >&2; then
+        print_error "Failed to push image $image_tag to registry ${REGISTRY}" >&2
         return 1
       fi
     fi
     echo "$image_tag"
     return 0
   else
-    print_error 'Docker build failed'
+    print_error 'Docker build failed' >&2
     return 1
   fi
 }
@@ -260,6 +262,36 @@ run_container_and_healthcheck() {
   # ensure previous container is removed
   docker rm -f "$name" >/dev/null 2>&1 || true
   print_info "Starting container $name from $image_tag"
+  # Defensive checks: ensure image_tag is non-empty and contains no whitespace
+  print_info "DEBUG: final image_tag='$image_tag'"
+  if [[ -z "$image_tag" || "$image_tag" =~ [[:space:]] ]]; then
+    print_error "Empty or invalid image tag: '$image_tag'"
+    return 1
+  fi
+
+  # Stricter validation: validate docker image reference format (basic check)
+  is_valid_docker_ref() {
+    local ref="$1"
+    # Docker reference pattern (simplified): [registry/][name][:tag]
+    # registry: optional hostname[:port], name: path components with [-_.a-z0-9], tag: [A-Za-z0-9_.-]+
+    # This is a pragmatic check, not a full parser.
+    if [[ "$ref" =~ ^([a-zA-Z0-9.-]+(:[0-9]+)?/)?([a-z0-9]+([._-][a-z0-9]+)*/)*[a-z0-9]+([._-][a-z0-9]+)*(:[A-Za-z0-9_.-]+)?$ ]]; then
+      return 0
+    fi
+    return 1
+  }
+
+  if ! is_valid_docker_ref "$image_tag"; then
+    print_error "Image tag does not match expected docker reference pattern: '$image_tag'"
+    # Write the captured tag to target/ for easier debugging in CI artifacts
+    mkdir -p target
+    echo "$image_tag" > target/last_built_image_tag.txt
+    print_info "Wrote captured image tag to target/last_built_image_tag.txt"
+    return 1
+  fi
+
+  # Emit the final docker run command for debugging (won't include credentials)
+  print_info "DEBUG: docker run -d --name \"$name\" -p ${port}:8080 \"$image_tag\""
   if ! docker run -d --name "$name" -p ${port}:8080 "$image_tag" >/dev/null; then
     print_error 'Failed to start Docker container'
     return 1
@@ -314,8 +346,18 @@ run_container_and_healthcheck() {
 }
 
 if check_docker_available; then
-  run_check 'Docker image build + optional push' build_docker_image
-  image_tag=$(build_docker_image)
+  # Build image once and capture the tag for subsequent run/healthcheck.
+  # Wrap build_docker_image so run_check records the step as passed/failed
+  # while also exposing the produced image tag in IMAGE_TAG_BUILT.
+  build_and_capture() {
+    local tag
+    tag=$(build_docker_image) || return 1
+    IMAGE_TAG_BUILT="$tag"
+    return 0
+  }
+
+  run_check 'Docker image build + optional push' build_and_capture
+  image_tag="${IMAGE_TAG_BUILT:-}"
   if [[ -n "$image_tag" ]]; then
     run_check 'Docker run + healthcheck + integration' run_container_and_healthcheck "$image_tag"
   fi
@@ -377,4 +419,3 @@ EOF
 
 # Always print suggested commands at the end to help manual checks
 print_suggested_commands
-

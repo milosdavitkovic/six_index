@@ -48,9 +48,9 @@ public class IndexDefinitionProvider {
         if (configuration.getReviewPeriod() == null || !configuration.getReviewPeriod().equalsIgnoreCase(reviewPeriod)) {
             throw new IllegalArgumentException("No configuration for review period " + reviewPeriod + " and index " + indexCode);
         }
-        String rankingRule = upper(configuration.getRankingRule());
-        String selectionRule = upper(configuration.getSelectionRule());
-        String bufferRule = upper(configuration.getBufferRule());
+        String rankingRule = upper(configuration.getRankingRule(), "ranking rule", indexCode);
+        String selectionRule = upper(configuration.getSelectionRule(), "selection rule", indexCode);
+        String bufferRule = upper(configuration.getBufferRule(), "buffer rule", indexCode);
         if (!"FFMCAP".equals(rankingRule)) {
             throw new IllegalArgumentException("Unsupported ranking rule: " + configuration.getRankingRule());
         }
@@ -78,7 +78,10 @@ public class IndexDefinitionProvider {
         return definition;
     }
 
-    private String upper(String value) {
-        return value == null ? "" : value.toUpperCase(Locale.ROOT);
+    private String upper(String value, String field, String indexCode) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException("Missing " + field + " for index " + indexCode);
+        }
+        return value.trim().toUpperCase(Locale.ROOT);
     }
 }

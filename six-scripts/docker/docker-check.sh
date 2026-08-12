@@ -4,15 +4,73 @@
 
 set -euo pipefail
 
+# Defaults
+VERBOSE=${DOCKER_CHECK_VERBOSE:-0}
+CI_MODE=0
+
+dbg() { if [ "${VERBOSE}" != "0" ]; then printf '[DBG] %s\n' "$*"; fi }
+
+# Simple CLI flag parsing (supports --verbose and --ci)
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --verbose|-v)
+      VERBOSE=1
+      shift
+      ;;
+    --ci)
+      CI_MODE=1
+      shift
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      # unknown positional arg: break to allow other scripts to forward
+      break
+      ;;
+  esac
+done
+
+dbg "CLI args parsed: VERBOSE=${VERBOSE}, CI_MODE=${CI_MODE}, remaining_args=$*"
+
 print_info() { printf '[INFO] %s\n' "$*"; }
 print_warn() { printf '[WARN] %s\n' "$*" >&2; }
 print_error() { printf '[ERROR] %s\n' "$*" >&2; }
 
 check_docker_version() {
   print_info 'Checking docker version (client + server)...'
-  if ! docker version --format '{{.Client.Version}}' >/dev/null 2>&1; then
-	print_error 'Docker CLI not found in PATH. Ensure Docker Desktop or Docker Engine is installed and "docker" is available in your shell.'
-	return 1
+
+  dbg "SHELL=${SHELL:-unknown}"
+  dbg "uname=$(uname -s 2>/dev/null || true)"
+  dbg "PATH=${PATH}"
+
+  # 1) PATH-level check
+  if ! command -v docker >/dev/null 2>&1; then
+    dbg 'command -v docker: not found'
+    # On MSYS/Git Bash try cmd.exe where as a fallback
+    if uname -s 2>/dev/null | grep -Ei 'mingw|msys|cygwin' >/dev/null 2>&1; then
+      dbg 'Detected MSYS/Git Bash environment; trying cmd.exe where docker'
+      if cmd.exe /c where docker >/dev/null 2>&1; then
+        print_info 'docker binary found via cmd.exe where; proceeding to runtime check.'
+      else
+        print_error 'Docker CLI not found in PATH. Ensure Docker Desktop or Docker Engine is installed and "docker" is available in your shell.'
+        return 1
+      fi
+    else
+      print_error 'Docker CLI not found in PATH. Ensure Docker Desktop or Docker Engine is installed and "docker" is available in your shell.'
+      return 1
+    fi
+  else
+    dbg "command -v docker: $(command -v docker 2>/dev/null)"
+  fi
+
+  # 2) Run-time check: make sure the binary is runnable. Use plain `docker version` without flags.
+  if ! docker version >/dev/null 2>&1; then
+    print_error 'docker is found in PATH but `docker version` failed. Ensure the docker CLI is runnable in this environment.'
+    # show the raw output to help debugging
+    docker version || true
+    return 1
   fi
 
   # Show full docker version output for user inspection
@@ -43,18 +101,28 @@ check_docker_info() {
 
 run_hello_world() {
   print_info 'Running hello-world container to verify run capability...'
+  if [ "${CI_MODE}" = "1" ]; then
+    dbg 'CI mode enabled: skipping hello-world run'
+    return 0
+  fi
+
   if ! docker run --rm hello-world; then
-	print_error 'Failed to run hello-world container.'
-	return 1
+    print_error 'Failed to run hello-world container.'
+    return 1
   fi
 }
 
 run_nginx_example() {
   print_info 'Starting nginx example container in detached mode (my-nginx -> port 8080:80)'
   docker rm -f my-nginx >/dev/null 2>&1 || true
+  if [ "${CI_MODE}" = "1" ]; then
+    dbg 'CI mode enabled: skipping nginx run'
+    return 0
+  fi
+
   if ! docker run -d --name my-nginx -p 8080:80 nginx >/dev/null; then
-	print_error 'Failed to start nginx container.'
-	return 1
+    print_error 'Failed to start nginx container.'
+    return 1
   fi
   print_info 'nginx started. Validate with: docker ps  and open http://localhost:8080'
 }

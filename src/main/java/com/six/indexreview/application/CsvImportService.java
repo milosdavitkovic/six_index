@@ -160,6 +160,9 @@ public class CsvImportService {
     @Transactional
     public ImportResult importComposition(MultipartFile file) {
         var definition = indexDefinitionProvider.defaultDefinition();
+        if (definition == null) {
+            throw new DataImportException("No default index definition is available for composition import");
+        }
         return self.importComposition(file, definition.indexCode().value(), definition.reviewPeriod());
     }
 

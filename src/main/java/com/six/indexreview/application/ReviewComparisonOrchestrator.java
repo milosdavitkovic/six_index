@@ -36,9 +36,11 @@ public class ReviewComparisonOrchestrator {
 
     public ReviewComparisonReport build(ReviewResult baseline, ReviewResult comparison) {
         List<ReviewComparisonItem> items = compareConstituents(constituentsBySecurity(baseline), constituentsBySecurity(comparison));
+        ComparisonGroups groups = groupChanges(items);
         return new ReviewComparisonReport(baseline.id(), comparison.id(), baseline.indexCode().value(), baseline.reviewPeriod(),
                 comparison.reviewPeriod(), baseline.validationWarnings(), comparison.validationWarnings(), items,
-                baseline.status().name(), comparison.status().name(), joiners(items), leavers(items), rankMovements(items), weightMovements(items));
+                baseline.status().name(), comparison.status().name(), groups.joiners(), groups.leavers(),
+                groups.rankMovements(), groups.weightMovements());
     }
 
     private Map<Integer, SelectedConstituent> constituentsBySecurity(ReviewResult result) {
@@ -74,20 +76,31 @@ public class ReviewComparisonOrchestrator {
         return ComparisonChange.PRESENT;
     }
 
-    private List<Integer> joiners(List<ReviewComparisonItem> items) {
-        return items.stream().filter(item -> item.change() == ComparisonChange.JOINER).map(ReviewComparisonItem::securityId).toList();
+    private ComparisonGroups groupChanges(List<ReviewComparisonItem> items) {
+        List<Integer> joiners = new ArrayList<>();
+        List<Integer> leavers = new ArrayList<>();
+        List<ReviewComparisonItem> rankMovements = new ArrayList<>();
+        List<ReviewComparisonItem> weightMovements = new ArrayList<>();
+        for (ReviewComparisonItem item : items) {
+            if (item.change() == ComparisonChange.JOINER) {
+                joiners.add(item.securityId());
+            } else if (item.change() == ComparisonChange.LEAVER) {
+                leavers.add(item.securityId());
+            }
+            if (item.rankDelta() != null && item.rankDelta() != 0) {
+                rankMovements.add(item);
+            }
+            if (item.weightDelta() != null && item.weightDelta().compareTo(BigDecimal.ZERO) != 0) {
+                weightMovements.add(item);
+            }
+        }
+        return new ComparisonGroups(List.copyOf(joiners), List.copyOf(leavers),
+                List.copyOf(rankMovements), List.copyOf(weightMovements));
     }
 
-    private List<Integer> leavers(List<ReviewComparisonItem> items) {
-        return items.stream().filter(item -> item.change() == ComparisonChange.LEAVER).map(ReviewComparisonItem::securityId).toList();
-    }
-
-    private List<ReviewComparisonItem> rankMovements(List<ReviewComparisonItem> items) {
-        return items.stream().filter(item -> item.rankDelta() != null && item.rankDelta() != 0).toList();
-    }
-
-    private List<ReviewComparisonItem> weightMovements(List<ReviewComparisonItem> items) {
-        return items.stream().filter(item -> item.weightDelta() != null && item.weightDelta().compareTo(BigDecimal.ZERO) != 0).toList();
+    private record ComparisonGroups(List<Integer> joiners, List<Integer> leavers,
+                                    List<ReviewComparisonItem> rankMovements,
+                                    List<ReviewComparisonItem> weightMovements) {
     }
 }
 

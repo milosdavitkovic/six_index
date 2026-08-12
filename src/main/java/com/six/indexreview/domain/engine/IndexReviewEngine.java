@@ -81,10 +81,14 @@ public class IndexReviewEngine {
     private BufferRule chooseBufferRule(IndexReviewContext context) {
         // Buffer behavior is isolated behind a strategy so future methodology
         // changes can be configured without altering the pipeline.
-        return switch (context.definition().bufferRule()) {
+        String bufferRule = context.definition().bufferRule();
+        if (bufferRule == null) {
+            throw new ReviewExecutionException("Buffer rule must not be null");
+        }
+        return switch (bufferRule.trim().toUpperCase(java.util.Locale.ROOT)) {
             case "NONE", "NOOP", "NO_OP", "" -> noOpBufferRule;
             case "CONFIGURABLE", "TOP_N_WITH_BUFFER" -> configurableBufferRule;
-            default -> throw new ReviewExecutionException("Unsupported buffer rule: " + context.definition().bufferRule());
+            default -> throw new ReviewExecutionException("Unsupported buffer rule: " + bufferRule);
         };
     }
 }
