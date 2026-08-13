@@ -4,6 +4,7 @@ Deterministic Spring Boot service for SIX index reviews. The application imports
 
 ## Read this first
 
+- `ASSUMPTIONS.md` documents tie-breakers, precision and rounding, missing-data, buffer, and CSV assumptions.
 - Repository branch for this setup: `feature/initial_setup`
 - This project is Maven-based and includes the Maven Wrapper (`mvnw` / `mvnw.cmd`)
 - The application uses Java 21, Spring Boot 4.1.0, and an in-memory H2 database by default
@@ -162,6 +163,20 @@ curl -X POST http://localhost:8080/api/import/all \
 curl -X POST http://localhost:8080/api/index-reviews/SMI/Q3-2026/run
 curl http://localhost:8080/api/index-reviews/SMI/Q3-2026/latest
 ```
+
+## Try it locally
+
+With Git Bash and Java 21 available, run the checked-in CSV smoke test from the
+repository root:
+
+```bash
+bash six-scripts/java-spring/reproducible-review.sh
+```
+
+The script starts the application when port 8080 is unused, imports the three
+files in `data/`, runs `SMI/Q3-2026`, and writes the JSON report to
+`target/reproducible-review/review-report.json`. Override `BASE_URL`,
+`INDEX_CODE`, `REVIEW_PERIOD`, or `OUTPUT_DIRECTORY` when needed.
 
 ### Reproducible sample review
 
