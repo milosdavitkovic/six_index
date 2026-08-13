@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import jakarta.validation.ConstraintViolationException;
 
 import java.time.Instant;
@@ -79,6 +81,20 @@ public class GlobalExceptionHandler {
                         null, "ERROR"))
                 .toList();
         return error(400, "INVALID_REQUEST", "Request validation failed", errors);
+    }
+
+    /** Converts missing multipart parts into the common client error shape. */
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse missingRequestPart(MissingServletRequestPartException exception) {
+        return error(400, "INVALID_REQUEST", exception.getMessage(), List.of());
+    }
+
+    /** Converts malformed path/query values into the common client error shape. */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse argumentTypeMismatch(MethodArgumentTypeMismatchException exception) {
+        return error(400, "INVALID_REQUEST", exception.getMessage(), List.of());
     }
 
     /** Converts method-parameter validation failures into the common error shape. */
