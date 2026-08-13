@@ -10,7 +10,37 @@ application.
 ```text
 six-scripts/java-spring/
 ├── README.md
+├── reproducible-review.sh
+├── reproducible-review.ps1
 └── verify-java-app.sh
+```
+
+## `reproducible-review.ps1`
+
+Execute this from the repository root:
+
+```powershell
+.\six-scripts\java-spring\reproducible-review.ps1
+```
+
+It reuses an application already running at the configured URL, or starts
+`mvnw spring-boot:run` automatically when no service is available. It then
+checks health, imports the three sample CSV files, runs `SMI/Q3-2026`, and
+writes the JSON responses to `target/reproducible-review/`. An automatically
+started application is stopped when the script finishes. See the root
+`README.md` for options such as a custom base URL or output directory.
+
+The Git Bash equivalent is:
+
+```bash
+bash six-scripts/java-spring/reproducible-review.sh
+```
+
+The Bash runner accepts the same settings through environment variables:
+
+```bash
+BASE_URL=http://localhost:8090 OUTPUT_DIRECTORY=target/my-review \
+  bash six-scripts/java-spring/reproducible-review.sh
 ```
 
 ## `verify-java-app.sh`

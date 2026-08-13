@@ -163,6 +163,41 @@ curl -X POST http://localhost:8080/api/index-reviews/SMI/Q3-2026/run
 curl http://localhost:8080/api/index-reviews/SMI/Q3-2026/latest
 ```
 
+### Reproducible sample review
+
+After starting the application, run the checked-in PowerShell runner from the
+repository root:
+
+```powershell
+.\six-scripts\java-spring\reproducible-review.ps1
+```
+
+The runner checks the health endpoint, imports `data/spi_universe.csv`,
+`data/sec_data.csv`, and `data/composition.csv`, then runs `SMI/Q3-2026`.
+The complete JSON response is written to
+`target/reproducible-review/review-report.json`; the import response and health
+response are saved alongside it. The base URL, index, review period, and output
+directory can be overridden, for example:
+
+```powershell
+.\six-scripts\java-spring\reproducible-review.ps1 `
+  -BaseUrl http://localhost:8090 `
+  -OutputDirectory target\my-review
+```
+
+This is intentionally a thin client of the public API, so it verifies the same
+import, execution, persistence, and reporting path as a reviewer using curl.
+
+Git Bash users can run the equivalent Bash script (it starts the application
+automatically if port 8080 is not already serving the API):
+
+```bash
+bash six-scripts/java-spring/reproducible-review.sh
+```
+
+It supports the same overrides through `BASE_URL`, `INDEX_CODE`,
+`REVIEW_PERIOD`, and `OUTPUT_DIRECTORY` environment variables.
+
 ## Startup and verification commands
 
 Recommended order for a new developer:
