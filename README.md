@@ -1,5 +1,8 @@
 # SIX Index Review
 
+Author: Milos Davitkovic <info@milosdavitkovic.com>
+Website: https://www.milosdavitkovic.com/
+
 Deterministic Spring Boot service for SIX index reviews. The application imports SPI universe, security market data, and current composition files, then runs the review pipeline to produce eligibility, FFMCAP ranking, constituent selection, joiner/leaver decisions, raw weights, capped final weights, and an auditable result.
 
 ## Read this first
@@ -10,6 +13,23 @@ Deterministic Spring Boot service for SIX index reviews. The application imports
 - The application uses Java 21, Spring Boot 4.1.0, and an in-memory H2 database by default
 - No real secrets are required
 - No external database, Kafka broker, or Docker stack is required for the default local run
+
+Quickstart
+----------
+
+Run the following from the repository root to build and run tests using the committed Maven Wrapper (recommended):
+
+```bash
+./mvnw clean verify
+```
+
+On Windows (Git Bash / cmd):
+
+```bash
+.\mvnw.cmd clean verify
+```
+
+The project must always be built with the included Maven Wrapper to ensure reproducible builds in CI and across developer machines.
 
 ## Repository layout
 
@@ -177,6 +197,23 @@ The script starts the application when port 8080 is unused, imports the three
 files in `data/`, runs `SMI/Q3-2026`, and writes the JSON report to
 `target/reproducible-review/review-report.json`. Override `BASE_URL`,
 `INDEX_CODE`, `REVIEW_PERIOD`, or `OUTPUT_DIRECTORY` when needed.
+
+## How to verify the SMI Q3-2026 review
+
+From the repository root:
+
+```bash
+bash six-scripts/java-spring/verify-java-app.sh
+```
+
+To run only the fixture-backed integration test:
+
+```bash
+./mvnw -Dtest=com.six.indexreview.IndexReviewServiceIntegrationTest test
+```
+
+On Windows, use `.\mvnw.cmd "-Dtest=com.six.indexreview.IndexReviewServiceIntegrationTest" test`.
+The expected fixture is stored at `src/test/resources/expected-smi-q3-2026.json`.
 
 ### Reproducible sample review
 
