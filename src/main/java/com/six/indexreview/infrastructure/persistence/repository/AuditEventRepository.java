@@ -10,6 +10,7 @@ import java.util.List;
  *
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
+ * @author Milos Davitkovic
  */
 public interface AuditEventRepository extends JpaRepository<AuditEventEntity, Long> {
     List<AuditEventEntity> findAllByReviewResult_IdAndSecurityIdOrderBySequenceNumberAsc(Long reviewResultId,

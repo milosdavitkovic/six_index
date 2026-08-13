@@ -12,6 +12,9 @@ import java.util.List;
  * Selection is separated from ranking so future buffer or threshold logic can
  * be introduced without changing the ranking implementation.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Component
 public class ConstituentSelector implements SelectionStrategy {
 

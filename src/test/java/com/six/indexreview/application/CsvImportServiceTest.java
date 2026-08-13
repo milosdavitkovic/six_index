@@ -22,7 +22,7 @@ import com.six.indexreview.infrastructure.persistence.repository.SpiUniverseRepo
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.mock.web.MockMultipartFile;
 import org.mockito.ArgumentCaptor;
 
@@ -39,33 +39,36 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
+/**
+ * @author Milos Davitkovic
+ */
 @SpringBootTest(classes = CsvImportService.class)
 class CsvImportServiceTest {
     @Autowired
     private CsvImportService csvImportService;
 
-    @MockBean
+    @MockitoBean
     private SpiUniverseCsvReader spiUniverseCsvReader;
 
-    @MockBean
+    @MockitoBean
     private SecurityDataCsvReader securityDataCsvReader;
 
-    @MockBean
+    @MockitoBean
     private CompositionCsvReader compositionCsvReader;
 
-    @MockBean
+    @MockitoBean
     private SecurityRepository securityRepository;
 
-    @MockBean
+    @MockitoBean
     private SpiUniverseRepository spiUniverseRepository;
 
-    @MockBean
+    @MockitoBean
     private MarketDataRepository marketDataRepository;
 
-    @MockBean
+    @MockitoBean
     private IndexCompositionRepository indexCompositionRepository;
 
-    @MockBean
+    @MockitoBean
     private IndexDefinitionProvider indexDefinitionProvider;
 
     @Test

@@ -8,6 +8,9 @@ import java.util.LinkedHashMap;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+/**
+ * @author Milos Davitkovic
+ */
 class IndexDefinitionProviderTest {
     @Test
     void unsupportedRankingRuleFailsDuringConfigurationResolution() {

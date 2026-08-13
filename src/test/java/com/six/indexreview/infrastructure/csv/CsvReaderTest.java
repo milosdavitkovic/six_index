@@ -1,6 +1,8 @@
 package com.six.indexreview.infrastructure.csv;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
@@ -8,6 +10,9 @@ import java.nio.charset.StandardCharsets;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+/**
+ * @author Milos Davitkovic
+ */
 class CsvReaderTest {
     @Test
     void readsSemicolonDataWithUtf8BomAndEmptyPrice() {
@@ -17,6 +22,29 @@ class CsvReaderTest {
             assertThat(row.price()).isNull();
             assertThat(row.freeFloat()).isEqualByComparingTo("0.1");
         });
+    }
+
+    @Test
+    void readsSpiUniverseWithUtf8BomAndSemicolonDelimiter() {
+        String csv = "\uFEFFdate;id\n2026-09-21;42\n";
+
+        var rows = new SpiUniverseCsvReader().read(stream(csv), "spi.csv");
+
+        assertThat(rows).singleElement().satisfies(row -> {
+            assertThat(row.date()).isEqualTo(java.time.LocalDate.of(2026, 9, 21));
+            assertThat(row.securityId().value()).isEqualTo(42);
+        });
+    }
+
+    @ParameterizedTest
+    @ValueSource(chars = {',', ';'})
+    void readsCompositionWithEitherSupportedDelimiter(char delimiter) {
+        String csv = "\uFEFFid" + delimiter + "ignored\n101" + delimiter + "first\n202" + delimiter + "second\n";
+
+        var rows = new CompositionCsvReader().read(stream(csv), "composition.csv");
+
+        assertThat(rows).extracting(row -> row.securityId().value())
+                .containsExactly(101, 202);
     }
 
     @Test

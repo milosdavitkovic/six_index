@@ -12,6 +12,9 @@ import org.springframework.stereotype.Component;
  * This rule exists so the engine can switch buffer behavior by configuration
  * instead of branching in the orchestration layer.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Slf4j
 @Component("noOpBufferRule")
 public class NoOpBufferRule implements BufferRule {

@@ -15,6 +15,9 @@ import java.util.List;
  * The comparator chain isolates methodology-specific tie-breakers so future
  * ranking variants can be introduced without changing the calling workflow.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Slf4j
 @Component
 public class DeterministicRanker implements RankingStrategy {

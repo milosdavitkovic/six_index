@@ -9,6 +9,7 @@ import java.util.List;
  *
  * Alternative weighting methodologies can be introduced through new strategy
  * implementations without changing the review workflow.
+ * @author Milos Davitkovic
  */
 public interface WeightingStrategy {
     List<SelectedConstituent> calculate(List<SelectedConstituent> constituents);

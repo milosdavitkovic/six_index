@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: six-index-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: six-index-service }
+  template:
+    metadata:
+      labels: { app: six-index-service }
+    spec:
+      containers:
+        - name: six-index-service
+          image: ghcr.io/milosdavitkovic/six_index:sha-placeholder
+          ports: [{ containerPort: 8080 }]
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod
+            - name: DB_URL
+              valueFrom: { secretKeyRef: { name: six-index-db, key: url } }
+            - name: DB_USERNAME
+              valueFrom: { secretKeyRef: { name: six-index-db, key: username } }
+            - name: DB_PASSWORD
+              valueFrom: { secretKeyRef: { name: six-index-db, key: password } }
+            - name: OAUTH2_ISSUER_URI
+              valueFrom: { secretKeyRef: { name: six-index-auth, key: issuer-uri } }
+          readinessProbe: { httpGet: { path: /actuator/health/readiness, port: 8080 }, periodSeconds: 10 }
+          livenessProbe: { httpGet: { path: /actuator/health/liveness, port: 8080 }, periodSeconds: 15 }
+          securityContext: { runAsNonRoot: true, runAsUser: 1001, allowPrivilegeEscalation: false }
+          resources:
+            requests: { cpu: 200m, memory: 384Mi }
+            limits: { cpu: "1", memory: 1Gi }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: six-index-service }
+spec:
+  selector: { app: six-index-service }
+  ports: [{ port: 80, targetPort: 8080 }]
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata: { name: six-index-service }
+spec:
+  scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: six-index-service }
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource: { name: cpu, target: { type: Utilization, averageUtilization: 70 } }

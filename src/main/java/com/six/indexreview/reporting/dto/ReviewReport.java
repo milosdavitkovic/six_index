@@ -9,6 +9,7 @@ import java.util.List;
  *
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
+ * @author Milos Davitkovic
  */
 public record ReviewReport(
         Long reviewResultId,

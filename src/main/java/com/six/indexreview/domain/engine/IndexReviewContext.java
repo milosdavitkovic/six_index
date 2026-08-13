@@ -12,8 +12,8 @@ public final class IndexReviewContext {
     private static final String VALUES_MUST_NOT_BE_NULL = "values must not be null";
     private final IndexDefinition definition;
     private final Set<SecurityId> universe;
-    private final Map<SecurityId, com.six.indexreview.domain.model.MarketData> cutOffMarketData;
-    private final Map<SecurityId, com.six.indexreview.domain.model.MarketData> reviewMarketData;
+    private final Map<SecurityId, MarketData> cutOffMarketData;
+    private final Map<SecurityId, MarketData> reviewMarketData;
     private final Set<SecurityId> currentComposition;
     private final PrecisionPolicy precisionPolicy;
     private final Instant executionTimestamp;
@@ -46,11 +46,11 @@ public final class IndexReviewContext {
         return universe;
     }
 
-    public Map<SecurityId, com.six.indexreview.domain.model.MarketData> cutOffMarketData() {
+    public Map<SecurityId, MarketData> cutOffMarketData() {
         return cutOffMarketData;
     }
 
-    public Map<SecurityId, com.six.indexreview.domain.model.MarketData> reviewMarketData() {
+    public Map<SecurityId, MarketData> reviewMarketData() {
         return reviewMarketData;
     }
 

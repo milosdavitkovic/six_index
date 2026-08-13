@@ -5,6 +5,7 @@ package com.six.indexreview.domain.rule;
  *
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
+ * @author Milos Davitkovic
  */
 public interface WeightCalculationRule extends ReviewRule {
 }

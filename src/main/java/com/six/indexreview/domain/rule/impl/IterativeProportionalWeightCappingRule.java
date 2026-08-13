@@ -22,6 +22,9 @@ import java.util.function.Consumer;
  * BigDecimal and a high internal scale are used to keep redistribution
  * deterministic and to ensure the published output sums to exactly 1.0.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Slf4j
 @Component
 public class IterativeProportionalWeightCappingRule implements WeightCappingRule, WeightCapper {
@@ -93,8 +96,7 @@ public class IterativeProportionalWeightCappingRule implements WeightCappingRule
         // Use a wider working precision than the published output scale so
         // repeated redistribution does not create non-deterministic rounding
         // artifacts.
-        MathContext mathContext = new MathContext(Math.max(34, precisionPolicy.internalScale() + 12),
-                precisionPolicy.roundingMode());
+        var mathContext = precisionPolicy.internalMathContext();
         Map<com.six.indexreview.domain.model.SecurityId, BigDecimal> working = initialWeights(constituents);
         adjustToTarget(working, maxWeight, Set.of(), mathContext);
 

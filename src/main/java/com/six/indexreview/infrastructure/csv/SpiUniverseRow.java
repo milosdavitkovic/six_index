@@ -9,6 +9,7 @@ import java.time.LocalDate;
  *
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
+ * @author Milos Davitkovic
  */
 public record SpiUniverseRow(LocalDate date, SecurityId securityId) {
 }

@@ -16,6 +16,9 @@ import java.util.*;
  * strategy allows future methodologies to retain members without changing the
  * engine or persistence model.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Slf4j
 @Component("configurableBufferRule")
 public class ConfigurableBufferRule implements BufferRule {
@@ -41,10 +44,15 @@ public class ConfigurableBufferRule implements BufferRule {
         Set<com.six.indexreview.domain.model.SecurityId> selectedIds = new HashSet<>(selected.stream()
                 .map(SelectedConstituent::securityId).toList());
         List<RankedSecurity> candidates = context.rankedSecurities().stream()
-                .filter(value -> value.currentConstituent() && !selectedIds.contains(value.securityId())
-                        && value.rank() <= rankLimit)
+                .filter(value -> value.currentConstituent() && !selectedIds.contains(value.securityId()))
                 .toList();
         for (RankedSecurity candidate : candidates) {
+            if (candidate.rank() > rankLimit) {
+                context.audit(code(), candidate.securityId(),
+                        "Current constituent was not retained because it is outside the configured rank buffer.",
+                        RANK_PREFIX + candidate.rank() + ",rankLimit=" + rankLimit, "NOT_RETAINED");
+                continue;
+            }
             int replacementIndex = -1;
             for (int i = 0; i < selected.size(); i++) {
                 if (!selected.get(i).currentConstituent()
@@ -53,6 +61,9 @@ public class ConfigurableBufferRule implements BufferRule {
                 }
             }
             if (replacementIndex < 0) {
+                context.audit(code(), candidate.securityId(),
+                        "Current constituent could not be retained because no non-current selected constituent was available for replacement.",
+                        RANK_PREFIX + candidate.rank() + ",rankLimit=" + rankLimit, "NOT_RETAINED");
                 continue;
             }
             SelectedConstituent replacement = selected.set(replacementIndex,

@@ -11,6 +11,9 @@ import lombok.Getter;
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Getter
 @Entity
 @Table(name = "security")

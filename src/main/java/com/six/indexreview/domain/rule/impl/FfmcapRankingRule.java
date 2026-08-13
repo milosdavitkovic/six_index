@@ -19,6 +19,9 @@ import java.util.List;
  * The rule keeps methodology-specific ranking behavior isolated so tie-breaker
  * changes can be introduced through configuration or a new strategy.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor

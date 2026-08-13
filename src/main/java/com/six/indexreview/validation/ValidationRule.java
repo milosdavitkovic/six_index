@@ -9,6 +9,7 @@ import java.util.List;
  *
  * Additional validation families can be added without changing the review
  * engine, keeping input quality checks separate from methodology logic.
+ * @author Milos Davitkovic
  */
 public interface ValidationRule {
     List<ValidationError> validate(IndexReviewContext context);

@@ -17,6 +17,9 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * @author Milos Davitkovic
+ */
 class DeterministicRankingAndSelectionTest {
     @Test
     void ranksByFfmcapThenCurrentConstituentThenSecurityId() {
@@ -44,5 +47,26 @@ class DeterministicRankingAndSelectionTest {
                 new EligibleSecurity(new SecurityId(1), BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE, new BigDecimal("5"), false));
         assertThat(ranker.rank(input, List.of("SECURITY_ID_ASC")))
                 .containsExactly(ranker.rank(input, List.of("SECURITY_ID_ASC")).toArray(RankedSecurity[]::new));
+    }
+
+    @Test
+    void usesSecurityIdAsDeterministicTieBreakerAtSelectionCutoff() {
+        IndexReviewContext context = RuleTestFixtures.context(
+                RuleTestFixtures.definition(2, BigDecimal.ONE), Set.of());
+        context.replaceEligible(List.of(
+                new EligibleSecurity(new SecurityId(3), BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE,
+                        new BigDecimal("10"), false),
+                new EligibleSecurity(new SecurityId(1), BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE,
+                        new BigDecimal("10"), false),
+                new EligibleSecurity(new SecurityId(2), BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE,
+                        new BigDecimal("10"), false)));
+
+        new FfmcapRankingRule(new FreeFloatMarketCapCalculator(), new DeterministicRanker()).apply(context);
+        new TopNSelectionRule(new ConstituentSelector()).apply(context);
+
+        assertThat(context.rankedSecurities().stream().map(RankedSecurity::securityId).toList())
+                .containsExactly(new SecurityId(1), new SecurityId(2), new SecurityId(3));
+        assertThat(context.selectedConstituents().stream().map(value -> value.securityId()).toList())
+                .containsExactly(new SecurityId(1), new SecurityId(2));
     }
 }

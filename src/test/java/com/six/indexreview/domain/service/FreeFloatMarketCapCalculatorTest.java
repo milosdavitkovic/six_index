@@ -7,6 +7,9 @@ import java.math.BigDecimal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
+/**
+ * @author Milos Davitkovic
+ */
 class FreeFloatMarketCapCalculatorTest {
     private final FreeFloatMarketCapCalculator calculator = new FreeFloatMarketCapCalculator();
 

@@ -10,6 +10,7 @@ import java.util.Objects;
  * The definition exposes a derived {@link MethodologyConfiguration} view so
  * methodology rules stay configuration-driven and future SIX indices can be
  * introduced without changing the review workflow.
+ * @author Milos Davitkovic
  */
 public record IndexDefinition(
         IndexCode indexCode,

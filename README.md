@@ -6,7 +6,7 @@ Deterministic Spring Boot service for SIX index reviews. The application imports
 
 - Repository branch for this setup: `feature/initial_setup`
 - This project is Maven-based and includes the Maven Wrapper (`mvnw` / `mvnw.cmd`)
-- The application uses Java 21, Spring Boot 3.4.3, and an in-memory H2 database by default
+- The application uses Java 21, Spring Boot 4.1.0, and an in-memory H2 database by default
 - No real secrets are required
 - No external database, Kafka broker, or Docker stack is required for the default local run
 
@@ -129,6 +129,16 @@ Windows Git Bash:
 
 The application listens on `http://localhost:8080` by default.
 
+Note for external contributors
+------------------------------
+This repository does not require access to SBB internal Artifactory. The project-local Maven settings file at `.mvn/settings-central.xml` is intentionally not configured to mirror all requests to an internal Artifactory, so builds will use the public Maven Central by default. You can build the project without SBB credentials using:
+
+```bash
+./mvnw clean verify
+```
+
+If your environment requires a custom mirror or authenticated repository, configure your global `~/.m2/settings.xml` or call the wrapper with `-s` pointing to a settings file that contains your credentials. Do not commit personal credentials to this repo.
+
 ### Verify with a health check
 
 ```bash
@@ -152,6 +162,41 @@ curl -X POST http://localhost:8080/api/import/all \
 curl -X POST http://localhost:8080/api/index-reviews/SMI/Q3-2026/run
 curl http://localhost:8080/api/index-reviews/SMI/Q3-2026/latest
 ```
+
+### Reproducible sample review
+
+After starting the application, run the checked-in PowerShell runner from the
+repository root:
+
+```powershell
+.\six-scripts\java-spring\reproducible-review.ps1
+```
+
+The runner checks the health endpoint, imports `data/spi_universe.csv`,
+`data/sec_data.csv`, and `data/composition.csv`, then runs `SMI/Q3-2026`.
+The complete JSON response is written to
+`target/reproducible-review/review-report.json`; the import response and health
+response are saved alongside it. The base URL, index, review period, and output
+directory can be overridden, for example:
+
+```powershell
+.\six-scripts\java-spring\reproducible-review.ps1 `
+  -BaseUrl http://localhost:8090 `
+  -OutputDirectory target\my-review
+```
+
+This is intentionally a thin client of the public API, so it verifies the same
+import, execution, persistence, and reporting path as a reviewer using curl.
+
+Git Bash users can run the equivalent Bash script (it starts the application
+automatically if port 8080 is not already serving the API):
+
+```bash
+bash six-scripts/java-spring/reproducible-review.sh
+```
+
+It supports the same overrides through `BASE_URL`, `INDEX_CODE`,
+`REVIEW_PERIOD`, and `OUTPUT_DIRECTORY` environment variables.
 
 ## Startup and verification commands
 

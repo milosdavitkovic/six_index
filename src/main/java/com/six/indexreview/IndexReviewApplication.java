@@ -1,9 +1,7 @@
 package com.six.indexreview;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 /**
  * Named application entry point for the index-review service.  The original
@@ -16,10 +14,11 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @SpringBootApplication(scanBasePackages = "com.six.indexreview")
 @ConfigurationPropertiesScan("com.six.indexreview")
-@EntityScan("com.six.indexreview.infrastructure.persistence.entity")
-@EnableJpaRepositories("com.six.indexreview.infrastructure.persistence.repository")
 public class IndexReviewApplication {
 
     public static void main(String[] args) {

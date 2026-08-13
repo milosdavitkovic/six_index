@@ -10,6 +10,7 @@ import java.time.LocalDate;
  *
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
+ * @author Milos Davitkovic
  */
 public record SecurityDataRow(SecurityId securityId, LocalDate date, BigDecimal price,
                               BigDecimal freeFloat, BigDecimal shares) {

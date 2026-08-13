@@ -5,6 +5,7 @@ package com.six.indexreview.api.dto;
  *
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
+ * @author Milos Davitkovic
  */
 public record DecisionResponse(int securityId, String decisionType, String reason) {
 }

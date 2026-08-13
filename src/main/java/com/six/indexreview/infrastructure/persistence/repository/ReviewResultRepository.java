@@ -10,6 +10,7 @@ import java.util.Optional;
  *
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
+ * @author Milos Davitkovic
  */
 public interface ReviewResultRepository extends JpaRepository<ReviewResultEntity, Long> {
     Optional<ReviewResultEntity> findById(Long id);

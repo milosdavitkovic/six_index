@@ -5,6 +5,7 @@ package com.six.indexreview.reporting.dto;
  *
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
+ * @author Milos Davitkovic
  */
 public record ReportRejectedSecurity(int securityId, String reason) {
 }

@@ -42,7 +42,7 @@ The denominator must be positive and every selected FFMCAP must be positive. Raw
 
 ## Precision rules
 
-All financial and weight calculations use `BigDecimal` end to end. Decimal values are parsed directly from text and are never converted through `double` or `float` intermediates. The shared `PrecisionPolicy` keeps intermediate calculations at scale 16 and final reported weights at scale 10, both using the configured rounding mode.
+All financial and weight calculations use `BigDecimal` end to end. Decimal values are parsed directly from text and are never converted through `double` or `float` intermediates. The shared `PrecisionPolicy` keeps intermediate values at scale 16 and final reported weights at scale 10. Iterative calculations use its fixed internal `MathContext` (34 digits minimum, or internal scale + 12 when larger), and every division and scale conversion uses the configured rounding mode (`HALF_UP` by default).
 
 ## 18% capping
 

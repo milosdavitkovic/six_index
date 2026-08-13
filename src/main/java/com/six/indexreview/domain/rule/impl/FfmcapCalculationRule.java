@@ -14,6 +14,9 @@ import java.util.ArrayList;
  * The rule exists as a standalone step so future methodologies can reuse the
  * same financial calculation without coupling it to ranking or selection.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Slf4j
 public class FfmcapCalculationRule implements ReviewRule {
     private final FreeFloatMarketCapCalculator calculator;

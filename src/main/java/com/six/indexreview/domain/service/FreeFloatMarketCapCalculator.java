@@ -10,6 +10,9 @@ import java.math.BigDecimal;
  * BigDecimal is used to avoid floating-point drift and keep financial inputs
  * reproducible across review runs and environments.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Component
 public class FreeFloatMarketCapCalculator {
 

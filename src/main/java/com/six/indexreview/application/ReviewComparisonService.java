@@ -10,6 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
  * Historical comparison supports index governance, review transparency, and
  * operational analysis.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Service
 @RequiredArgsConstructor
 public class ReviewComparisonService {
