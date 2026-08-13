@@ -1,5 +1,8 @@
 # Contributing
 
+Author: Milos Davitkovic <info@milosdavitkovic.com>
+Website: https://www.milosdavitkovic.com/
+
 Thank you for contributing to six_index. This file contains guidelines for contributors and maintainers.
 
 Start here

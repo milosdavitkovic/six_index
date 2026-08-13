@@ -1,5 +1,8 @@
 # SIX Index Review
 
+Author: Milos Davitkovic <info@milosdavitkovic.com>
+Website: https://www.milosdavitkovic.com/
+
 Deterministic Spring Boot service for SIX index reviews. The application imports SPI universe, security market data, and current composition files, then runs the review pipeline to produce eligibility, FFMCAP ranking, constituent selection, joiner/leaver decisions, raw weights, capped final weights, and an auditable result.
 
 ## Read this first
