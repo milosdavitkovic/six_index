@@ -178,6 +178,23 @@ files in `data/`, runs `SMI/Q3-2026`, and writes the JSON report to
 `target/reproducible-review/review-report.json`. Override `BASE_URL`,
 `INDEX_CODE`, `REVIEW_PERIOD`, or `OUTPUT_DIRECTORY` when needed.
 
+## How to verify the SMI Q3-2026 review
+
+From the repository root:
+
+```bash
+bash six-scripts/java-spring/verify-java-app.sh
+```
+
+To run only the fixture-backed integration test:
+
+```bash
+./mvnw -Dtest=com.six.indexreview.IndexReviewServiceIntegrationTest test
+```
+
+On Windows, use `.\mvnw.cmd "-Dtest=com.six.indexreview.IndexReviewServiceIntegrationTest" test`.
+The expected fixture is stored at `src/test/resources/expected-smi-q3-2026.json`.
+
 ### Reproducible sample review
 
 After starting the application, run the checked-in PowerShell runner from the
