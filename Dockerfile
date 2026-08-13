@@ -10,8 +10,11 @@ RUN mvn -q -DskipTests -Dmaven.test.skip=true clean package
 
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-# curl is used by the container health check
-RUN apk add --no-cache curl
+# Upgrade the base Alpine packages so security fixes are included; curl is used
+# by the container health check.
+RUN apk update \
+    && apk upgrade --no-cache \
+    && apk add --no-cache curl
 # Create non-root user with minimal privileges
 RUN addgroup -S -g 1001 spring && adduser -S -D -H -u 1001 -G spring spring \
     && chown -R spring:spring /app
