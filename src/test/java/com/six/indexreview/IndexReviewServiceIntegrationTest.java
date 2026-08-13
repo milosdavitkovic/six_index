@@ -58,6 +58,14 @@ class IndexReviewServiceIntegrationTest {
                 .reduce(BigDecimal.ZERO, BigDecimal::add)).isEqualByComparingTo("1.0000000000");
         assertThat(response.constituents()).allSatisfy(value ->
                 assertThat(value.finalWeight()).isLessThanOrEqualTo(new BigDecimal("0.1800000000")));
+        assertThat(response.auditEvents())
+                .filteredOn(value -> value.ruleCode().equals("APPLY_WEIGHT_CAP")
+                        && value.message().startsWith("Weight capping redistribution iteration"))
+                .isNotEmpty()
+                .allSatisfy(value -> {
+                    assertThat(value.inputValue()).matches("rawWeight=-?\\d+(\\.\\d+)?,cappedWeight=-?\\d+(\\.\\d+)?");
+                    assertThat(value.outputValue()).matches("redistributedAmount=-?\\d+(\\.\\d+)?");
+                });
 
         ReviewResponse latest = indexReviewService.latest("SMI", "Q3-2026");
         assertThat(latest.reviewResultId()).isEqualTo(response.reviewResultId());
