@@ -6,7 +6,7 @@ Deterministic Spring Boot service for SIX index reviews. The application imports
 
 - Repository branch for this setup: `feature/initial_setup`
 - This project is Maven-based and includes the Maven Wrapper (`mvnw` / `mvnw.cmd`)
-- The application uses Java 21, Spring Boot 3.4.3, and an in-memory H2 database by default
+- The application uses Java 21, Spring Boot 4.1.0, and an in-memory H2 database by default
 - No real secrets are required
 - No external database, Kafka broker, or Docker stack is required for the default local run
 
@@ -128,6 +128,16 @@ Windows Git Bash:
 ```
 
 The application listens on `http://localhost:8080` by default.
+
+Note for external contributors
+------------------------------
+This repository does not require access to SBB internal Artifactory. The project-local Maven settings file at `.mvn/settings-central.xml` is intentionally not configured to mirror all requests to an internal Artifactory, so builds will use the public Maven Central by default. You can build the project without SBB credentials using:
+
+```bash
+./mvnw clean verify
+```
+
+If your environment requires a custom mirror or authenticated repository, configure your global `~/.m2/settings.xml` or call the wrapper with `-s` pointing to a settings file that contains your credentials. Do not commit personal credentials to this repo.
 
 ### Verify with a health check
 

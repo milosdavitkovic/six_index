@@ -11,6 +11,9 @@ import org.springframework.stereotype.Component;
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Component
 public class AuditEventMapper {
     public AuditEvent toDomain(AuditEventEntity entity) {

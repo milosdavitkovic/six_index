@@ -7,6 +7,7 @@ import com.six.indexreview.domain.model.SecurityId;
  *
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
+ * @author Milos Davitkovic
  */
 public record CompositionRow(SecurityId securityId) {
 }

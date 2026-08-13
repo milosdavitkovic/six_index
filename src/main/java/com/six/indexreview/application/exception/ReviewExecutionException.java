@@ -5,6 +5,7 @@ package com.six.indexreview.application.exception;
  *
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
+ * @author Milos Davitkovic
  */
 public class ReviewExecutionException extends RuntimeException {
     public ReviewExecutionException(String message) {

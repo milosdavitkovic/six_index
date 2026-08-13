@@ -10,6 +10,9 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * @author Milos Davitkovic
+ */
 class NoOpBufferRuleTest {
     @Test
     void leavesPureTopNSelectionUnchangedAndAuditsConfiguration() {

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- Immutable records expose their serialized collection components by contract. -->
+    <Match><Bug pattern="EI_EXPOSE_REP"/></Match>
+    <Match><Bug pattern="EI_EXPOSE_REP2"/></Match>
+    <!-- Trace IDs are restricted to header-safe characters before being returned. -->
+    <Match>
+        <Class name="com.six.indexreview.api.TraceIdFilter"/>
+        <Bug pattern="HRS_REQUEST_PARAMETER_TO_HTTP_HEADER"/>
+    </Match>
+</FindBugsFilter>

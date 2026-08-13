@@ -13,15 +13,23 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
+import jakarta.validation.ConstraintViolationException;
 
 import java.time.Instant;
 import java.util.List;
+import org.slf4j.MDC;
 
 /**
  * Core GlobalExceptionHandler component for the SIX index review workflow.
  *
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
+ */
+/**
+ * @author Milos Davitkovic
  */
 @RestControllerAdvice
 @Slf4j
@@ -64,6 +72,42 @@ public class GlobalExceptionHandler {
         return error(400, "INVALID_REQUEST", exception.getMessage(), List.of());
     }
 
+    /** Converts bean-validation failures into the common client error shape. */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse requestValidation(MethodArgumentNotValidException exception) {
+        List<ValidationErrorResponse> errors = exception.getBindingResult().getFieldErrors().stream()
+                .map(value -> new ValidationErrorResponse("INVALID_FIELD", value.getField(), value.getDefaultMessage(),
+                        null, "ERROR"))
+                .toList();
+        return error(400, "INVALID_REQUEST", "Request validation failed", errors);
+    }
+
+    /** Converts missing multipart parts into the common client error shape. */
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse missingRequestPart(MissingServletRequestPartException exception) {
+        return error(400, "INVALID_REQUEST", exception.getMessage(), List.of());
+    }
+
+    /** Converts malformed path/query values into the common client error shape. */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse argumentTypeMismatch(MethodArgumentTypeMismatchException exception) {
+        return error(400, "INVALID_REQUEST", exception.getMessage(), List.of());
+    }
+
+    /** Converts method-parameter validation failures into the common error shape. */
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse constraintValidation(ConstraintViolationException exception) {
+        List<ValidationErrorResponse> errors = exception.getConstraintViolations().stream()
+                .map(value -> new ValidationErrorResponse("INVALID_PARAMETER", value.getPropertyPath().toString(),
+                        value.getMessage(), null, "ERROR"))
+                .toList();
+        return error(400, "INVALID_REQUEST", "Request validation failed", errors);
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse unexpected(Exception exception) {
@@ -77,6 +121,7 @@ public class GlobalExceptionHandler {
     }
 
     private ErrorResponse error(int status, String code, String message, List<ValidationErrorResponse> validationErrors) {
-        return new ErrorResponse(Instant.now(), status, code, message, message, validationErrors);
+        return new ErrorResponse(Instant.now(), status, code, message, message,
+                MDC.get("traceId"), validationErrors);
     }
 }

@@ -28,6 +28,9 @@ import java.util.Objects;
  * Validation happens before review execution so invalid market data cannot
  * influence constituent selection or audit output.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Slf4j
 @Service
 public class CsvImportService {
@@ -157,6 +160,9 @@ public class CsvImportService {
     @Transactional
     public ImportResult importComposition(MultipartFile file) {
         var definition = indexDefinitionProvider.defaultDefinition();
+        if (definition == null) {
+            throw new DataImportException("No default index definition is available for composition import");
+        }
         return self.importComposition(file, definition.indexCode().value(), definition.reviewPeriod());
     }
 

@@ -22,6 +22,9 @@ import java.util.function.Consumer;
  * BigDecimal and a high internal scale are used to keep redistribution
  * deterministic and to ensure the published output sums to exactly 1.0.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Slf4j
 @Component
 public class IterativeProportionalWeightCappingRule implements WeightCappingRule, WeightCapper {

@@ -10,6 +10,7 @@ import java.util.List;
  *
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
+ * @author Milos Davitkovic
  */
 public interface IndexCompositionRepository extends JpaRepository<IndexCompositionEntity, Long> {
     List<IndexCompositionEntity> findAllByIndexCodeAndReviewPeriod(String indexCode, String reviewPeriod);

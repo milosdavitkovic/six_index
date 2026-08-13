@@ -13,6 +13,9 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
+/**
+ * @author Milos Davitkovic
+ */
 class IterativeProportionalWeightCappingRuleTest {
     private final IterativeProportionalWeightCappingRule capper =
             new IterativeProportionalWeightCappingRule(new PrecisionPolicy(16, 10, RoundingMode.HALF_UP));

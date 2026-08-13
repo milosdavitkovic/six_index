@@ -8,6 +8,7 @@ import java.math.RoundingMode;
  *
  * A single policy keeps rounding deterministic and makes methodology changes
  * easier to review, test, and version.
+ * @author Milos Davitkovic
  */
 public record PrecisionPolicy(int internalScale, int outputScale, RoundingMode roundingMode) {
 

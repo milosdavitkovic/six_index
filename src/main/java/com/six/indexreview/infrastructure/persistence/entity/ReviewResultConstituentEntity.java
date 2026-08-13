@@ -12,6 +12,9 @@ import java.math.BigDecimal;
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Getter
 @Builder
 @Entity

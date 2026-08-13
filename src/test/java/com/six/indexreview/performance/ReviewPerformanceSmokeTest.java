@@ -17,6 +17,9 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * @author Milos Davitkovic
+ */
 class ReviewPerformanceSmokeTest {
     private final FreeFloatMarketCapCalculator calculator = new FreeFloatMarketCapCalculator();
     private final DeterministicRanker ranker = new DeterministicRanker();

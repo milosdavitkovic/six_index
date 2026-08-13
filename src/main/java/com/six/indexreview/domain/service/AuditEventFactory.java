@@ -13,6 +13,9 @@ import java.time.Instant;
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Component
 public class AuditEventFactory {
     private final Clock clock;

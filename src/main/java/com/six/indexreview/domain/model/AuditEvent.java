@@ -7,6 +7,7 @@ import java.time.Instant;
  *
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
+ * @author Milos Davitkovic
  */
 public record AuditEvent(
         Instant timestamp,

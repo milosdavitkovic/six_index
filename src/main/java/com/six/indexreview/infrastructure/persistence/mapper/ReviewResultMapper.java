@@ -1,11 +1,11 @@
 package com.six.indexreview.infrastructure.persistence.mapper;
 
+import com.six.indexreview.infrastructure.persistence.entity.*;
 import com.six.indexreview.domain.engine.IndexReviewContext;
 import com.six.indexreview.domain.model.*;
 import com.six.indexreview.infrastructure.persistence.entity.AuditEventEntity;
 import com.six.indexreview.infrastructure.persistence.entity.ReviewDecisionEntity;
 import com.six.indexreview.infrastructure.persistence.entity.ReviewResultConstituentEntity;
-import com.six.indexreview.infrastructure.persistence.entity.ReviewResultEntity;
 import com.six.indexreview.validation.ValidationError;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +16,9 @@ import java.util.*;
  *
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
+ */
+/**
+ * @author Milos Davitkovic
  */
 @Component
 public class ReviewResultMapper {

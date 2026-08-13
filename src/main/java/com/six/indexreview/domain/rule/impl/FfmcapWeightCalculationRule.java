@@ -15,6 +15,9 @@ import org.springframework.stereotype.Component;
  * The rule remains methodology-specific so alternative weighting schemes can
  * be added later without changing the capping step or review flow.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor

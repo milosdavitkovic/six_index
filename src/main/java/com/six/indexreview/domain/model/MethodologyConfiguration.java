@@ -9,6 +9,7 @@ import java.util.Objects;
  *
  * Methodology rules are configuration-driven to minimize future implementation
  * effort when index rules evolve.
+ * @author Milos Davitkovic
  */
 public record MethodologyConfiguration(
         int constituentCount,

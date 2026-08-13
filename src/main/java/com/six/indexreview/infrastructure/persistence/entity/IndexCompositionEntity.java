@@ -9,6 +9,9 @@ import lombok.Getter;
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Getter
 @Entity
 @Table(name = "index_composition", uniqueConstraints = @UniqueConstraint(name = "uk_composition_index_period_security", columnNames = {"index_code", "review_period", "security_id"}))

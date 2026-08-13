@@ -31,6 +31,9 @@ import java.util.Locale;
  * The service stays outside the domain rules so methodology changes can be
  * introduced in the engine without affecting HTTP or persistence concerns.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor

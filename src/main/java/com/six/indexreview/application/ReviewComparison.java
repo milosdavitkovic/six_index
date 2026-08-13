@@ -5,6 +5,7 @@ import java.util.Map;
 
 /**
  * Comparison report for two review runs.
+ * @author Milos Davitkovic
  */
 public record ReviewComparison(Long baselineReviewResultId, Long comparisonReviewResultId, String indexCode,
                                String baselineReviewPeriod, String comparisonReviewPeriod,

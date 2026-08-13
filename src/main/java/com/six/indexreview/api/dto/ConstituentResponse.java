@@ -7,6 +7,7 @@ import java.math.BigDecimal;
  *
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
+ * @author Milos Davitkovic
  */
 public record ConstituentResponse(int securityId, int rank, BigDecimal ffmcap, BigDecimal rawWeight,
                                   BigDecimal finalWeight, BigDecimal cappingFactor,

@@ -11,6 +11,9 @@ import java.math.RoundingMode;
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @Getter
 @Setter
 public class PrecisionProperties {

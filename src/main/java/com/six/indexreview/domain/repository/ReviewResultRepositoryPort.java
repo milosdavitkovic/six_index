@@ -9,6 +9,7 @@ import java.util.Optional;
  *
  * Repository abstraction allows audit and review history persistence without
  * impacting methodology logic.
+ * @author Milos Davitkovic
  */
 public interface ReviewResultRepositoryPort {
     ReviewResult saveReviewResult(ReviewResult result);

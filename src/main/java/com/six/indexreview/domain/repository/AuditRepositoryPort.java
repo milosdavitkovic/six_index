@@ -9,6 +9,7 @@ import java.util.List;
  *
  * Repository abstraction allows audit and review history persistence without
  * impacting methodology logic.
+ * @author Milos Davitkovic
  */
 public interface AuditRepositoryPort {
     List<AuditEvent> findAuditEventsForSecurity(Long reviewResultId, Integer securityId);

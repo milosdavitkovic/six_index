@@ -28,6 +28,8 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+		<!-- Default: skip PMD for local/dev builds. CI can enable with -Pwith-pmd -->
+		<skipPmd>true</skipPmd>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -41,6 +43,27 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.8.13</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -68,6 +91,12 @@
 			<artifactId>spring-boot-starter-webmvc-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>1.21.3</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -75,6 +104,53 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.14</version>
+				<executions>
+					<execution><goals><goal>prepare-agent</goal></goals></execution>
+					<execution><id>jacoco-check</id><phase>verify</phase><goals><goal>report</goal><goal>check</goal></goals>
+						<configuration><rules><rule><element>BUNDLE</element><limits>
+							<limit><counter>LINE</counter><value>COVEREDRATIO</value><minimum>0.80</minimum></limit>
+							<limit><counter>BRANCH</counter><value>COVEREDRATIO</value><minimum>0.70</minimum></limit>
+						</limits></rule></rules></configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>3.6.0</version>
+				<configuration><configLocation>checkstyle.xml</configLocation><failsOnError>true</failsOnError></configuration>
+				<executions><execution><phase>verify</phase><goals><goal>check</goal></goals></execution></executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+				<version>3.28.0</version>
+				<!-- Controlled by property 'skipPmd' (default true). Use -Pwith-pmd in CI to run PMD. -->
+				<configuration>
+					<skip>${skipPmd}</skip>
+					<failOnViolation>true</failOnViolation>
+					<printFailingErrors>true</printFailingErrors>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>verify</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>com.github.spotbugs</groupId>
+				<artifactId>spotbugs-maven-plugin</artifactId>
+				<version>4.9.8.2</version>
+				<configuration><failOnError>true</failOnError><excludeFilterFile>${project.basedir}/spotbugs-exclude.xml</excludeFilterFile></configuration>
+				<executions><execution><phase>verify</phase><goals><goal>check</goal></goals></execution></executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -114,5 +190,18 @@
 			</plugin>
 		</plugins>
 	</build>
+
+			<profiles>
+				<!-- Profile to enable PMD checks (for CI). Activate with -Pwith-pmd -->
+				<profile>
+					<id>with-pmd</id>
+					<activation>
+						<activeByDefault>false</activeByDefault>
+					</activation>
+					<properties>
+						<skipPmd>false</skipPmd>
+					</properties>
+				</profile>
+			</profiles>
 
 </project>

@@ -8,7 +8,8 @@ import java.util.List;
  *
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
+ * @author Milos Davitkovic
  */
 public record ErrorResponse(Instant timestamp, int status, String errorCode, String message,
-                            String details, List<ValidationErrorResponse> validationErrors) {
+                            String details, String traceId, List<ValidationErrorResponse> validationErrors) {
 }

@@ -5,6 +5,7 @@ package com.six.indexreview.domain.engine;
  *
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
+ * @author Milos Davitkovic
  */
 public record RuleExecutionResult(String ruleCode, int auditEventCount) {
 }

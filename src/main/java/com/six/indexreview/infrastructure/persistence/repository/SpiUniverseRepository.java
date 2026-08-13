@@ -11,6 +11,7 @@ import java.util.List;
  *
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
+ * @author Milos Davitkovic
  */
 public interface SpiUniverseRepository extends JpaRepository<SpiUniverseMemberEntity, Long> {
     List<SpiUniverseMemberEntity> findAllByDate(LocalDate date);

@@ -17,8 +17,11 @@ import java.util.List;
  * Kept intentionally concise so the business meaning remains visible
  * without obscuring the implementation.
  */
+/**
+ * @author Milos Davitkovic
+ */
 @RestController
-@RequestMapping("/api/index-reviews")
+@RequestMapping({"/api/index-reviews", "/api/v1/index-reviews"})
 @RequiredArgsConstructor
 @Validated
 public class IndexReviewController {

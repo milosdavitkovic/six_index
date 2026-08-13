@@ -6,8 +6,9 @@ import com.six.indexreview.application.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
@@ -26,13 +27,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Validates HTTP endpoints, parameter validation, exception handling, and response formats.
  */
 @WebMvcTest(IndexReviewController.class)
+@Import(MvcTestApplicationConfiguration.class)
 @DisplayName("IndexReviewController")
 class IndexReviewControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private IndexReviewService indexReviewService;
 
     private static final ReviewResponse SAMPLE_REVIEW = new ReviewResponse(

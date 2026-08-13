@@ -14,6 +14,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * @author Milos Davitkovic
+ */
 public final class CsvParsingUtils {
     private CsvParsingUtils() {
     }
