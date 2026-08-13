@@ -11,6 +11,23 @@ Deterministic Spring Boot service for SIX index reviews. The application imports
 - No real secrets are required
 - No external database, Kafka broker, or Docker stack is required for the default local run
 
+Quickstart
+----------
+
+Run the following from the repository root to build and run tests using the committed Maven Wrapper (recommended):
+
+```bash
+./mvnw clean verify
+```
+
+On Windows (Git Bash / cmd):
+
+```bash
+.\mvnw.cmd clean verify
+```
+
+The project must always be built with the included Maven Wrapper to ensure reproducible builds in CI and across developer machines.
+
 ## Repository layout
 
 - `src/main/java/com/six/indexreview/api` — REST controllers and DTOs
