@@ -1,6 +1,7 @@
 package com.six.indexreview.domain.service;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 
 /**
@@ -40,5 +41,14 @@ public record PrecisionPolicy(int internalScale, int outputScale, RoundingMode r
         // Deterministic division protects the review from JVM/default-scale
         // differences and keeps repeated runs reproducible.
         return numerator.divide(denominator, internalScale, roundingMode);
+    }
+
+    /**
+     * Math context for iterative calculations that must retain more precision
+     * than the published weight scale. Keeping this here prevents individual
+     * rules from silently choosing different precision or rounding settings.
+     */
+    public MathContext internalMathContext() {
+        return new MathContext(Math.max(34, internalScale + 12), roundingMode);
     }
 }

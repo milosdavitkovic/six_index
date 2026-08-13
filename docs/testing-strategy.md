@@ -6,10 +6,13 @@ Pure domain services and rules are tested without Spring:
 
 - FFMCAP normal, zero/full free float, invalid values, and BigDecimal behavior.
 - ranking order, current-member tie-breaker, ID tie-breaker, and repeated determinism.
+- equal-FFMCAP ties at the top-N selection cut-off, including the final security-ID tie-breaker.
 - top-N selection and no-op buffer audit output.
 - joiner, leaver, unchanged, not-selected, and rejection decisions.
 - raw weight validation and the capping rule.
 - capping with no breach, one breach, multiple breaches, repeated redistribution, residual rounding, and impossible capacity.
+- capping assertions verify every output weight is at output scale, does not exceed the configured cap after rounding, and the rounded weights sum exactly to the output-scale one.
+- security-level missing cut-off price, review-date shares, and review-date free-float rejection reasons.
 - UTF-8 BOM, delimiter, missing-column, empty-price, and duplicate CSV cases.
 - fixed-clock audit event creation.
 

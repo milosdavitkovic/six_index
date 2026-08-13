@@ -1,0 +1,22 @@
+[
+  {"securityId": 155, "finalWeight": "0.1800000000"},
+  {"securityId": 205, "finalWeight": "0.1800000000"},
+  {"securityId": 63, "finalWeight": "0.1418307109"},
+  {"securityId": 64, "finalWeight": "0.1409634137"},
+  {"securityId": 65, "finalWeight": "0.0623628855"},
+  {"securityId": 54, "finalWeight": "0.0490064910"},
+  {"securityId": 177, "finalWeight": "0.0465001734"},
+  {"securityId": 176, "finalWeight": "0.0223420632"},
+  {"securityId": 70, "finalWeight": "0.0208377157"},
+  {"securityId": 87, "finalWeight": "0.0207139322"},
+  {"securityId": 280, "finalWeight": "0.0183778562"},
+  {"securityId": 309, "finalWeight": "0.0164629793"},
+  {"securityId": 317, "finalWeight": "0.0143154470"},
+  {"securityId": 270, "finalWeight": "0.0140798756"},
+  {"securityId": 95, "finalWeight": "0.0138337313"},
+  {"securityId": 43, "finalWeight": "0.0130301706"},
+  {"securityId": 311, "finalWeight": "0.0124808174"},
+  {"securityId": 253, "finalWeight": "0.0120915160"},
+  {"securityId": 249, "finalWeight": "0.0106860425"},
+  {"securityId": 28, "finalWeight": "0.0100841785"}
+]

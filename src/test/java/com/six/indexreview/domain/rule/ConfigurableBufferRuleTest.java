@@ -42,6 +42,25 @@ class ConfigurableBufferRuleTest {
                 .anyMatch(event -> event.message().contains("retained by configurable buffer rule"));
     }
 
+    @Test
+    void auditsCurrentMemberOutsideBufferAsNotRetained() {
+        IndexDefinition definition = new IndexDefinition(
+                new IndexCode("SMI"), "Test index", 1, BigDecimal.ONE,
+                "FFMCAP", "TOP_N", "CONFIGURABLE", "Q3-2026",
+                new ReviewDates(LocalDate.of(2026, Month.SEPTEMBER, 10), LocalDate.of(2026, Month.SEPTEMBER, 21)),
+                List.of("CURRENT_CONSTITUENT_FIRST", "SECURITY_ID_ASC"), true, 2);
+        var context = RuleTestFixtures.context(definition, Set.of(new SecurityId(2)));
+        context.replaceRanked(List.of(ranked(1, 1, false), ranked(2, 3, true)));
+        context.replaceSelected(List.of(
+                new SelectedConstituent(new SecurityId(1), 1, BigDecimal.ONE, false)));
+
+        new ConfigurableBufferRule().apply(context);
+
+        assertThat(context.auditEvents()).anyMatch(event ->
+                event.securityId().equals(new SecurityId(2))
+                        && event.outputValue().equals("NOT_RETAINED"));
+    }
+
     private RankedSecurity ranked(int id, int rank, boolean current) {
         return new RankedSecurity(new SecurityId(id), rank, BigDecimal.ONE, BigDecimal.ONE,
                 BigDecimal.ONE, BigDecimal.valueOf(10L - rank), current);

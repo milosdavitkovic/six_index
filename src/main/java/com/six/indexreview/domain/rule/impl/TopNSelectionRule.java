@@ -41,9 +41,15 @@ public class TopNSelectionRule implements SelectionRule {
         }
         // The ranked list is already deterministic; truncation preserves that
         // order and therefore the final selected set.
-        context.replaceSelected(selector.select(context.rankedSecurities(), context.definition().methodology().constituentCount()));
+        int constituentCount = context.definition().methodology().constituentCount();
+        context.replaceSelected(selector.select(context.rankedSecurities(), constituentCount));
         context.selectedConstituents().forEach(value -> context.audit(code(), value.securityId(),
                 "Security selected by top-N rule.", "rank=" + value.rank(), "SELECTED"));
+        context.rankedSecurities().stream()
+                .filter(value -> value.rank() > constituentCount)
+                .forEach(value -> context.audit(code(), value.securityId(),
+                        "Security excluded by top-N rule because its rank is outside the selected range.",
+                        "rank=" + value.rank() + ",constituentCount=" + constituentCount, "NOT_SELECTED"));
         log.info("Completed rule {} selected={}", code(), context.selectedConstituents().size());
         return context;
     }

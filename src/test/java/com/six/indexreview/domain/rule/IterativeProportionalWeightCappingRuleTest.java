@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -45,11 +46,50 @@ class IterativeProportionalWeightCappingRuleTest {
     }
 
     @Test
+    void appliesConfiguredEighteenPercentCapToSingleLargeConstituent() {
+        var context = RuleTestFixtures.context(RuleTestFixtures.definition(6, new BigDecimal("0.18")), Set.of());
+        context.replaceSelected(weights("0.70", "0.06", "0.06", "0.06", "0.06", "0.06"));
+
+        capper.apply(context);
+
+        assertThat(context.selectedConstituents().stream().map(SelectedConstituent::finalWeight).toList())
+                .containsExactly(new BigDecimal("0.1800000000"), new BigDecimal("0.1640000000"),
+                        new BigDecimal("0.1640000000"), new BigDecimal("0.1640000000"),
+                        new BigDecimal("0.1640000000"), new BigDecimal("0.1640000000"));
+        assertValid(context.selectedConstituents(), new BigDecimal("0.18"));
+    }
+
+    @Test
+    void repeatedlyCapsNearLimitConstituentsUntilAllAreAtOrBelowEighteenPercent() {
+        List<SelectedConstituent> result = capper.cap(
+                weights("0.30", "0.19", "0.16", "0.14", "0.10", "0.06", "0.05"),
+                new BigDecimal("0.18"));
+
+        assertThat(result).allMatch(value -> value.finalWeight().compareTo(new BigDecimal("0.1800000000")) <= 0);
+        assertThat(result.stream().filter(SelectedConstituent::capped)).hasSize(4);
+        assertThat(result.stream().map(SelectedConstituent::finalWeight).reduce(BigDecimal.ZERO, BigDecimal::add))
+                .isEqualByComparingTo("1.0000000000");
+        assertValid(result, new BigDecimal("0.18"));
+    }
+
+    @Test
     void appliesDeterministicResidualAndRejectsImpossibleCap() {
         List<SelectedConstituent> result = capper.cap(weights("0.3333333333333333", "0.3333333333333333", "0.3333333333333334"), new BigDecimal("0.60"));
         assertThat(result.stream().map(SelectedConstituent::finalWeight).reduce(BigDecimal.ZERO, BigDecimal::add))
                 .isEqualByComparingTo("1.0000000000");
         assertThatIllegalArgumentException().isThrownBy(() -> capper.cap(weights("0.5", "0.5"), new BigDecimal("0.49")));
+    }
+
+    @Test
+    void preservesCapWhenResidualRoundingIsApplied() {
+        List<SelectedConstituent> result = capper.cap(
+                weights("0.30000000004", "0.29999999998", "0.20000000001", "0.19999999997"),
+                new BigDecimal("0.30"));
+
+        assertThat(result).allMatch(value -> value.finalWeight().scale() == 10);
+        assertThat(result).allMatch(value -> value.finalWeight().compareTo(new BigDecimal("0.3000000000")) <= 0);
+        assertThat(result.stream().map(SelectedConstituent::finalWeight).reduce(BigDecimal.ZERO, BigDecimal::add))
+                .isEqualByComparingTo("1.0000000000");
     }
 
     private List<SelectedConstituent> weights(String... values) {
