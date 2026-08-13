@@ -113,11 +113,12 @@ run_hello_world() {
 }
 
 run_nginx_example() {
-  print_info 'Starting nginx example container in detached mode (my-nginx -> port 8080:80)'
-  docker rm -f my-nginx >/dev/null 2>&1 || true
   if [ "${CI_MODE}" = "1" ]; then
     dbg 'CI mode enabled: skipping nginx run'
     return 0
+  fi
+  print_info 'Starting nginx example container in detached mode (my-nginx -> port 8080:80)'
+  docker rm -f my-nginx >/dev/null 2>&1 || true
   fi
 
   if ! docker run -d --name my-nginx -p 8080:80 nginx >/dev/null; then
