@@ -115,6 +115,22 @@ class CsvImportServiceTest {
     }
 
     @Test
+    void importSecurityDataDeduplicatesIdenticalRows() {
+        LocalDate date = LocalDate.of(2026, Month.SEPTEMBER, 1);
+        when(securityDataCsvReader.read(any(), any())).thenReturn(List.of(
+                new SecurityDataRow(new SecurityId(1), date, new BigDecimal("10.0"), new BigDecimal("0.5"), new BigDecimal("100")),
+                new SecurityDataRow(new SecurityId(1), date, new BigDecimal("10.00"), new BigDecimal("0.50"), new BigDecimal("100.0"))));
+
+        var result = csvImportService.importSecurityData(file("security-data.csv", "x"));
+
+        assertThat(result.inputRows()).isEqualTo(2);
+        assertThat(result.storedRows()).isEqualTo(1);
+        assertThat(result.deduplicatedRows()).isEqualTo(1);
+        verify(marketDataRepository).saveAll(anyList());
+        verify(securityRepository).findAllById(anyList());
+    }
+
+    @Test
     void importCompositionUsesConfiguredDefinitionAndSelfDelegatingVariantWorks() {
         var definition = new IndexDefinition(new IndexCode("SMI"), "Swiss Market Index", 20, new BigDecimal("0.18"),
                 "FFMCAP", "TOP_N", "NONE", "Q3-2026",

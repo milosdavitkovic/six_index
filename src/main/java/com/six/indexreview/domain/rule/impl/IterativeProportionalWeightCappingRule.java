@@ -29,6 +29,7 @@ import java.util.function.Consumer;
 @Component
 public class IterativeProportionalWeightCappingRule implements WeightCappingRule, WeightCapper {
     private static final BigDecimal ONE = BigDecimal.ONE;
+    private static final int ITERATION_BUFFER = 2;
     private final PrecisionPolicy precisionPolicy;
 
     public IterativeProportionalWeightCappingRule() {
@@ -54,20 +55,24 @@ public class IterativeProportionalWeightCappingRule implements WeightCappingRule
     public IndexReviewContext apply(IndexReviewContext context) {
         log.info("Starting rule {} maxWeight={} selected={}", code(), context.definition().maxWeight(),
                 context.selectedConstituents().size());
-        List<String> redistributionMessages = new ArrayList<>();
+        List<RedistributionAudit> redistributionAudits = new ArrayList<>();
         List<SelectedConstituent> capped;
         try {
             // Store redistribution steps separately so the audit trail can show
             // how excess weight moved between constituents.
             capped = capInternal(context.selectedConstituents(), context.definition().maxWeight(),
-                    redistributionMessages::add);
+                    redistributionAudits::add);
         } catch (IllegalArgumentException exception) {
             throw new ReviewValidationException("Weight capping validation failed", List.of(
                     ValidationError.error("WEIGHT_CAPPING_FAILED", "finalWeights", exception.getMessage())));
         }
         context.replaceSelected(capped);
-        for (String message : redistributionMessages) {
-            context.audit(code(), message, null, null);
+        for (RedistributionAudit audit : redistributionAudits) {
+            context.audit(code(), audit.securityId(),
+                    "Weight capping redistribution iteration " + audit.iteration() + ".",
+                    "rawWeight=" + audit.rawWeight().toPlainString()
+                            + ",cappedWeight=" + audit.cappedWeight().toPlainString(),
+                    "redistributedAmount=" + audit.redistributedAmount().toPlainString());
         }
         capped.forEach(value -> {
             if (value.capped()) {
@@ -91,7 +96,7 @@ public class IterativeProportionalWeightCappingRule implements WeightCappingRule
 
     private List<SelectedConstituent> capInternal(List<SelectedConstituent> constituents,
                                                   BigDecimal maxWeight,
-                                                  Consumer<String> redistributionAudit) {
+                                                  Consumer<RedistributionAudit> redistributionAudit) {
         validateInput(constituents, maxWeight);
         // Use a wider working precision than the published output scale so
         // repeated redistribution does not create non-deterministic rounding
@@ -134,24 +139,40 @@ public class IterativeProportionalWeightCappingRule implements WeightCappingRule
     private void redistribute(List<SelectedConstituent> constituents, BigDecimal maxWeight,
                               Map<com.six.indexreview.domain.model.SecurityId, BigDecimal> working,
                               Set<com.six.indexreview.domain.model.SecurityId> cappedIds,
-                              MathContext mathContext, Consumer<String> audit) {
+                              MathContext mathContext, Consumer<RedistributionAudit> audit) {
+        // Each iteration permanently caps at least one previously uncapped
+        // constituent. The explicit bound (selected count + two safety
+        // iterations) prevents pathological input or precision behaviour from
+        // turning this loop into an unbounded operation.
+        int maxIterations = constituents.size() + ITERATION_BUFFER;
         for (int iteration = 1; ; iteration++) {
-            if (iteration > constituents.size() + 2) throw new IllegalStateException("Weight capping did not converge");
+            if (iteration > maxIterations) {
+                throw new IllegalStateException("Weight capping did not converge within " + maxIterations + " iterations");
+            }
             List<SelectedConstituent> overCap = constituents.stream()
                     .filter(value -> !cappedIds.contains(value.securityId()))
                     .filter(value -> working.get(value.securityId()).compareTo(maxWeight) > 0).toList();
             if (overCap.isEmpty()) return;
+            Map<com.six.indexreview.domain.model.SecurityId, BigDecimal> before = new LinkedHashMap<>(working);
             BigDecimal excess = capAndMeasureExcess(overCap, maxWeight, working, cappedIds, mathContext);
             List<SelectedConstituent> uncapped = constituents.stream()
                     .filter(value -> !cappedIds.contains(value.securityId())).toList();
             // Redistribute excess proportionally to the remaining uncapped
             // weights so the relative order of the survivors remains stable.
             redistributeToUncapped(uncapped, excess, working, mathContext);
-            String message = "Redistribution iteration " + iteration + " capped="
-                    + overCap.stream().map(value -> value.securityId().toString()).sorted().toList()
-                    + " excess=" + excess.toPlainString();
-            log.debug(message);
-            audit.accept(message);
+            int currentIteration = iteration;
+            constituents.forEach(value -> {
+                BigDecimal rawWeight = before.get(value.securityId());
+                BigDecimal cappedWeight = working.get(value.securityId());
+                BigDecimal redistributedAmount = cappedIds.contains(value.securityId())
+                        ? BigDecimal.ZERO
+                        : cappedWeight.subtract(rawWeight, mathContext);
+                audit.accept(new RedistributionAudit(currentIteration, value.securityId(), rawWeight,
+                        cappedWeight, redistributedAmount));
+            });
+            log.debug("Redistribution iteration {} capped={} excess={}", iteration,
+                    overCap.stream().map(value -> value.securityId().toString()).sorted().toList(),
+                    excess.toPlainString());
         }
     }
 
@@ -287,5 +308,12 @@ public class IterativeProportionalWeightCappingRule implements WeightCappingRule
         List<SelectedConstituent> result = new ArrayList<>(first);
         second.stream().filter(value -> !result.contains(value)).forEach(result::add);
         return result;
+    }
+
+    private record RedistributionAudit(int iteration,
+                                       com.six.indexreview.domain.model.SecurityId securityId,
+                                       BigDecimal rawWeight,
+                                       BigDecimal cappedWeight,
+                                       BigDecimal redistributedAmount) {
     }
 }
