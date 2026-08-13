@@ -57,6 +57,10 @@ class IterativeProportionalWeightCappingRuleTest {
                         new BigDecimal("0.1640000000"), new BigDecimal("0.1640000000"),
                         new BigDecimal("0.1640000000"), new BigDecimal("0.1640000000"));
         assertValid(context.selectedConstituents(), new BigDecimal("0.18"));
+        assertThat(context.auditEvents()).anyMatch(event ->
+                event.inputValue() != null && event.inputValue().contains("rawWeight=")
+                        && event.inputValue().contains("cappedWeight=")
+                        && event.outputValue() != null && event.outputValue().contains("redistributedAmount="));
     }
 
     @Test
